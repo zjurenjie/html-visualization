@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML 图表配方画廊 · 14 图型 × 4 主题</title>
+
+<!-- ECharts：CDN 优先，本地 ../assets/echarts.min.js 兜底（离线可用）。
+     本文件位于 templates/，移动到其他目录时同步修正兜底相对路径。 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+  if (!window.echarts) {
+    document.write('<script src="../assets/echarts.min.js"><\/script>');
+  }
+</script>
+
+<style>
+  /* ============ 4 套主题令牌（与 echarts-template.html、chart-design.md §3 一致） ============ */
+  :root,
+  body[data-theme="light"] {
+    color-scheme: light;
+    --page: #f4f6fa;
+    --card: #ffffff;
+    --border: #e6eaf0;
+    --fg: #1f2329;
+    --muted: #86909c;
+    --grid: #e5e6eb;
+    --accent: #3b82f6;
+    --s1: #3b82f6; --s2: #10b981; --s3: #f59e0b;
+    --s4: #8b5cf6; --s5: #ef4444; --s6: #14b8a6;
+  }
+  body[data-theme="business"] {
+    --page: #f6f2ea;
+    --card: #fffdf8;
+    --border: #e8e0d2;
+    --fg: #1f2937;
+    --muted: #6b7280;
+    --grid: #e7e0d4;
+    --accent: #1d4ed8;
+    --s1: #1d4ed8; --s2: #b8860b; --s3: #64748b;
+    --s4: #0f766e; --s5: #9333ea; --s6: #78716c;
+  }
+  body[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #080e1a;
+    --card: #0f172a;
+    --border: #1e293b;
+    --fg: #f1f5f9;
+    --muted: #94a3b8;
+    --grid: #1e293b;
+    --accent: #38bdf8;
+    --s1: #38bdf8; --s2: #34d399; --s3: #a78bfa;
+    --s4: #f472b6; --s5: #fbbf24; --s6: #22d3ee;
+  }
+  body[data-theme="warm"] {
+    --page: #fdf3ea;
+    --card: #fffaf5;
+    --border: #f2e3d6;
+    --fg: #292524;
+    --muted: #78716c;
+    --grid: #f0e0d2;
+    --accent: #f97316;
+    --s1: #f97316; --s2: #e11d48; --s3: #f59e0b;
+    --s4: #be123c; --s5: #ea580c; --s6: #fbbf24;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--page);
+    color: var(--fg);
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+                 "Source Han Sans SC", sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .page {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 36px 32px 48px;
+  }
+
+  /* ============ 页头与主题切换 ============ */
+  .head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: clamp(24px, 3vw, 32px);
+    letter-spacing: 0.01em;
+  }
+  .sub {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .themes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .theme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--fg);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .theme-btn[aria-pressed="true"] {
+    border-color: var(--accent);
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .theme-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .swatch {
+    display: inline-flex;
+    gap: 2px;
+  }
+  .swatch i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+  }
+
+  /* ============ 卡片网格 ============ */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 16px 8px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  body[data-theme="dark"] .card {
+    box-shadow: none;
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .card h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .tag {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .chart {
+    width: 100%;
+    height: 260px;
+  }
+
+  /* ============ 页脚 ============ */
+  .foot {
+    margin-top: 28px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .foot code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 11px;
+  }
+
+  /* ============ 加载失败提示 ============ */
+  .load-error {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  body[data-theme="dark"] .load-error {
+    border-color: #7f1d1d;
+    background: #2a1113;
+    color: #fca5a5;
+  }
+
+  @media (max-width: 980px) {
+    .page { padding: 28px 18px 40px; }
+    .grid { grid-template-columns: 1fr; }
+    .chart { height: 230px; }
+  }
+</style>
+</head>
+
+<body data-theme="light">
+<div class="page">
+  <header class="head">
+    <div>
+      <h1>HTML 图表配方画廊</h1>
+      <p class="sub">14 种常用图型 × 4 套主题 · 点击主题按钮即时重绘 · 实际输出仍按 16:9 / 1:1 / 9:16 截图</p>
+    </div>
+    <div class="themes" role="group" aria-label="切换主题">
+      <button class="theme-btn" type="button" data-theme="light" aria-pressed="true">
+        <span class="swatch" aria-hidden="true">
+          <i style="background:#3b82f6"></i><i style="background:#10b981"></i><i style="background:#f59e0b"></i>
+        </span>简约浅色
+      </button>
+      <button class="theme-btn" type="button" data-theme="business" aria-pressed="false">
+        <span class="swatch" aria-hidden="true">
+          <i style="background:#1d4ed8"></i><i style="background:#b8860b"></i><i style="background:#64748b"></i>
+        </span>商务蓝金
+      </button>
+      <button class="theme-btn" type="button" data-theme="dark" aria-pressed="false">
+        <span class="swatch" aria-hidden="true">
+          <i style="background:#38bdf8"></i><i style="background:#34d399"></i><i style="background:#a78bfa"></i>
+        </span>科技深色
+      </button>
+      <button class="theme-btn" type="button" data-theme="warm" aria-pressed="false">
+        <span class="swatch" aria-hidden="true">
+          <i style="background:#f97316"></i><i style="background:#e11d48"></i><i style="background:#fbbf24"></i>
+        </span>暖色活力
+      </button>
+    </div>
+  </header>
+
+  <div id="load-error" class="load-error" hidden>
+    ECharts 未加载成功：请检查网络，或确认 <code>../assets/echarts.min.js</code> 存在。
+  </div>
+
+  <main class="grid">
+    <article class="card">
+      <div class="card-head"><h2>折线图</h2><span class="tag">趋势 · 时间序列</span></div>
+      <div class="chart" data-chart="line" role="img" aria-label="折线图示例：月度活跃用户趋势"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>堆叠折线图</h2><span class="tag">累计 · 多系列</span></div>
+      <div class="chart" data-chart="stacked-line" role="img" aria-label="堆叠折线图示例：五个渠道的累计趋势"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>柱状图</h2><span class="tag">比较 · 类别</span></div>
+      <div class="chart" data-chart="bar" role="img" aria-label="柱状图示例：各区域销售额"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>横向条形图</h2><span class="tag">排行 · 长标签</span></div>
+      <div class="chart" data-chart="hbar" role="img" aria-label="横向条形图示例：渠道排行"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>堆叠柱状图</h2><span class="tag">构成 · 随时间</span></div>
+      <div class="chart" data-chart="stacked" role="img" aria-label="堆叠柱状图示例：线上、门店与渠道构成"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>饼图</h2><span class="tag">占比 · 少量类别</span></div>
+      <div class="chart" data-chart="pie" role="img" aria-label="饼图示例：终端访问占比"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>环形图</h2><span class="tag">占比 · 中心指标</span></div>
+      <div class="chart" data-chart="donut" role="img" aria-label="环形图示例：访问来源与总量"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>散点图</h2><span class="tag">关系 · 两变量</span></div>
+      <div class="chart" data-chart="scatter" role="img" aria-label="散点图示例：投入与产出关系"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>分布散点图</h2><span class="tag">分布 · 多类别</span></div>
+      <div class="chart" data-chart="dist-scatter" role="img" aria-label="分布散点图示例：四类食物的蛋白质与钙分布"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>线性回归图</h2><span class="tag">关系 · 趋势线</span></div>
+      <div class="chart" data-chart="regression" role="img" aria-label="线性回归图示例：投入与产出的最小二乘拟合"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>雷达图</h2><span class="tag">多维 · 能力对比</span></div>
+      <div class="chart" data-chart="radar" role="img" aria-label="雷达图示例：两方案六维能力对比"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>漏斗图</h2><span class="tag">转化 · 阶段流失</span></div>
+      <div class="chart" data-chart="funnel" role="img" aria-label="漏斗图示例：曝光到成交的转化"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>仪表盘</h2><span class="tag">KPI · 单指标</span></div>
+      <div class="chart" data-chart="gauge" role="img" aria-label="仪表盘示例：目标完成率"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2>甘特图</h2><span class="tag">排期 · 起止区间</span></div>
+      <div class="chart" data-chart="gantt" role="img" aria-label="甘特图示例：项目排期与进度"></div>
+    </article>
+  </main>
+
+  <footer class="foot">
+    数据均为示例，仅用于图型与主题预览。主题令牌与配方见
+    <code>references/chart-design.md</code>；也可用 <code>?theme=light|business|dark|warm</code> 直接打开指定主题。
+  </footer>
+</div>
+
+<script>
+  const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月',
+                  '7月', '8月', '9月', '10月', '11月', '12月'];
+  const THEMES = ['light', 'business', 'dark', 'warm'];
+
+  // ------------------------------------------------------------------
+  // 通用工具
+  // ------------------------------------------------------------------
+  function cssVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
+
+  function readTheme() {
+    return {
+      fg: cssVar('--fg'),
+      muted: cssVar('--muted'),
+      grid: cssVar('--grid'),
+      accent: cssVar('--accent'),
+      card: cssVar('--card'),
+      palette: [1, 2, 3, 4, 5, 6].map((i) => cssVar('--s' + i)),
+    };
+  }
+
+  function hexToRgba(hex, alpha) {
+    const raw = String(hex || '').replace('#', '');
+    const full = raw.length === 3 ? raw.split('').map((c) => c + c).join('') : raw;
+    const num = parseInt(full, 16);
+    if (Number.isNaN(num)) return hex;
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+  }
+
+  // 确定性伪随机：同一 index/seed 永远得到同一分布，保证每次截图一致
+  function hash01(index, seed) {
+    const v = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
+    return v - Math.floor(v);
+  }
+
+  function base(T) {
+    return {
+      animation: false,
+      tooltip: { show: false },
+      color: T.palette,
+      textStyle: {
+        fontFamily: '"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",sans-serif',
+      },
+      grid: { left: 8, right: 16, top: 32, bottom: 8, containLabel: true },
+    };
+  }
+
+  function catAxis(data, T, extra = {}) {
+    const baseAxis = {
+      type: 'category',
+      data,
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: T.grid } },
+      axisLabel: { color: T.muted, fontSize: 11, interval: 0, hideOverlap: true },
+    };
+    return {
+      ...baseAxis,
+      ...extra,
+      axisLabel: { ...baseAxis.axisLabel, ...(extra.axisLabel || {}) },
+    };
+  }
+
+  function valAxis(T, extra = {}) {
+    const baseAxis = {
+      type: 'value',
+      splitLine: { lineStyle: { color: T.grid, type: 'dashed' } },
+      axisLabel: { color: T.muted, fontSize: 11 },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    };
+    return {
+      ...baseAxis,
+      ...extra,
+      axisLabel: { ...baseAxis.axisLabel, ...(extra.axisLabel || {}) },
+      splitLine: extra.splitLine
+        ? { ...baseAxis.splitLine, ...extra.splitLine }
+        : baseAxis.splitLine,
+    };
+  }
+
+  // ------------------------------------------------------------------
+  // 13 种图型：每种都是一个 (T) => option 的函数
+  // ------------------------------------------------------------------
+  const builders = {
+    // 1. 折线图：单指标随时间变化
+    line(T) {
+      const data = [82, 94, 88, 105, 118, 124, 117, 131, 142, 156, 149, 168];
+      const maxIndex = data.indexOf(Math.max(...data));
+      return {
+        ...base(T),
+        xAxis: catAxis(MONTHS, T, { axisLabel: { interval: 1 } }),
+        yAxis: valAxis(T),
+        series: [{
+          name: '月活',
+          type: 'line',
+          data,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: T.accent },
+          itemStyle: { color: T.accent, borderColor: T.card, borderWidth: 1.5 },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: hexToRgba(T.accent, 0.30) },
+              { offset: 1, color: hexToRgba(T.accent, 0.02) },
+            ]),
+          },
+          label: {
+            show: true,
+            color: T.fg,
+            fontSize: 10,
+            distance: 8,
+            formatter: (p) => (p.dataIndex === maxIndex ? p.value : ''),
+          },
+        }],
+      };
+    },
+
+    // 2. 堆叠折线图：多系列累计趋势（stack 后线的高度是累计值）
+    'stacked-line'(T) {
+      const cats = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const seriesData = [
+        { name: 'Email', data: [120, 132, 101, 134, 90, 230, 210] },
+        { name: 'Union Ads', data: [220, 182, 191, 234, 290, 330, 310] },
+        { name: 'Video Ads', data: [150, 232, 201, 154, 190, 330, 410] },
+        { name: 'Direct', data: [320, 332, 301, 334, 390, 330, 320] },
+        { name: 'Search Engine', data: [820, 932, 901, 934, 1290, 1330, 1320] },
+      ];
+      return {
+        ...base(T),
+        legend: {
+          top: 0,
+          left: 'center',
+          itemWidth: 9,
+          itemHeight: 9,
+          itemGap: 8,
+          textStyle: { color: T.muted, fontSize: 10 },
+        },
+        grid: { left: 8, right: 16, top: 42, bottom: 8, containLabel: true },
+        xAxis: catAxis(cats, T, { boundaryGap: false }),
+        yAxis: valAxis(T),
+        series: seriesData.map((item, i) => ({
+          name: item.name,
+          type: 'line',
+          stack: 'Total',
+          data: item.data,
+          symbol: 'circle',
+          symbolSize: 4,
+          lineStyle: { width: 2, color: T.palette[i] },
+          itemStyle: { color: T.palette[i] },
+        })),
+      };
+    },
+
+    // 3. 柱状图：少量类别比较
+    bar(T) {
+      const cats = ['华东', '华南', '华北', '西南', '华中', '东北'];
+      const data = [860, 720, 640, 520, 460, 380];
+      return {
+        ...base(T),
+        xAxis: catAxis(cats, T),
+        yAxis: valAxis(T),
+        series: [{
+          name: '销售额',
+          type: 'bar',
+          data,
+          barWidth: '52%',
+          itemStyle: {
+            borderRadius: [4, 4, 0, 0],
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: T.accent },
+              { offset: 1, color: hexToRgba(T.accent, 0.62) },
+            ]),
+          },
+          label: { show: true, position: 'top', color: T.fg, fontSize: 10 },
+        }],
+      };
+    },
+
+    // 4. 横向条形图：类别多、名字长，按值排序
+    hbar(T) {
+      const cats = ['自然搜索', '信息流', '短视频', '直播', '社群', '邮件', '联盟', '其他'];
+      const data = [920, 780, 690, 610, 540, 430, 310, 220];
+      return {
+        ...base(T),
+        grid: { left: 8, right: 36, top: 10, bottom: 8, containLabel: true },
+        xAxis: valAxis(T, {
+          splitLine: { show: false },
+          axisLabel: { show: false },
+          axisLine: { show: false },
+          axisTick: { show: false },
+        }),
+        yAxis: catAxis(cats, T, {
+          inverse: true,
+          axisLine: { show: false },
+          axisLabel: { color: T.fg },
+        }),
+        series: [{
+          name: '渠道单量',
+          type: 'bar',
+          data,
+          barWidth: '56%',
+          itemStyle: { color: T.accent, borderRadius: [0, 4, 4, 0] },
+          label: { show: true, position: 'right', color: T.fg, fontSize: 10 },
+        }],
+      };
+    },
+
+    // 5. 堆叠柱状图：构成随时间变化
+    stacked(T) {
+      const cats = ['1月', '2月', '3月', '4月', '5月', '6月'];
+      const seriesData = [
+        { name: '线上', data: [120, 135, 128, 150, 162, 175] },
+        { name: '门店', data: [90, 92, 105, 98, 110, 118] },
+        { name: '渠道', data: [60, 72, 68, 80, 86, 95] },
+      ];
+      return {
+        ...base(T),
+        legend: {
+          top: 0,
+          right: 0,
+          itemWidth: 9,
+          itemHeight: 9,
+          itemGap: 12,
+          textStyle: { color: T.muted, fontSize: 10 },
+        },
+        grid: { left: 8, right: 12, top: 36, bottom: 8, containLabel: true },
+        xAxis: catAxis(cats, T),
+        yAxis: valAxis(T),
+        series: seriesData.map((item, i) => ({
+          name: item.name,
+          type: 'bar',
+          stack: 'total',
+          data: item.data,
+          barWidth: '46%',
+          itemStyle: {
+            color: T.palette[i],
+            borderRadius: i === seriesData.length - 1 ? [4, 4, 0, 0] : 0,
+          },
+        })),
+      };
+    },
+
+    // 6. 饼图：少量类别看占比
+    pie(T) {
+      const data = [
+        { value: 460, name: '移动端' },
+        { value: 320, name: '桌面端' },
+        { value: 140, name: '平板' },
+        { value: 80, name: '其他' },
+      ];
+      return {
+        ...base(T),
+        series: [{
+          name: '终端占比',
+          type: 'pie',
+          radius: '62%',
+          center: ['50%', '50%'],
+          avoidLabelOverlap: true,
+          minAngle: 3,
+          itemStyle: { borderColor: T.card, borderWidth: 2, borderRadius: 4 },
+          label: { color: T.fg, fontSize: 10, lineHeight: 14, formatter: '{b}\n{d}%' },
+          labelLine: { length: 8, length2: 6, lineStyle: { color: T.grid } },
+          data,
+        }],
+      };
+    },
+
+    // 7. 环形图：中心可放总计/KPI
+    donut(T) {
+      const total = 1280;
+      const data = [
+        { value: 420, name: '老客复购' },
+        { value: 360, name: '新客首单' },
+        { value: 280, name: '活动转化' },
+        { value: 220, name: '自然访问' },
+      ];
+      return {
+        ...base(T),
+        title: {
+          text: total.toLocaleString('en-US'),
+          subtext: '总访问量',
+          left: 'center',
+          top: '31%',
+          textAlign: 'center',
+          textStyle: { color: T.fg, fontSize: 22, fontWeight: 'bold' },
+          subtextStyle: { color: T.muted, fontSize: 10 },
+        },
+        legend: {
+          bottom: 0,
+          left: 'center',
+          itemWidth: 9,
+          itemHeight: 9,
+          itemGap: 10,
+          textStyle: { color: T.muted, fontSize: 10 },
+        },
+        series: [{
+          name: '访问来源',
+          type: 'pie',
+          radius: ['46%', '66%'],
+          center: ['50%', '43%'],
+          avoidLabelOverlap: true,
+          itemStyle: { borderColor: T.card, borderWidth: 2 },
+          label: { show: false },
+          labelLine: { show: false },
+          data,
+        }],
+      };
+    },
+
+    // 8. 散点图：两个连续变量的关系
+    scatter(T) {
+      const groupA = [[12, 32], [18, 41], [22, 38], [28, 52], [35, 61], [42, 58],
+                      [48, 72], [55, 80], [62, 76], [70, 88], [78, 95], [85, 102]];
+      const groupB = [[15, 20], [24, 28], [30, 35], [38, 42], [45, 50], [52, 47],
+                      [58, 60], [66, 66], [72, 72], [80, 78], [88, 84], [95, 90]];
+      return {
+        ...base(T),
+        legend: {
+          top: 0,
+          right: 0,
+          itemWidth: 9,
+          itemHeight: 9,
+          textStyle: { color: T.muted, fontSize: 10 },
+        },
+        grid: { left: 8, right: 16, top: 32, bottom: 38, containLabel: true },
+        xAxis: valAxis(T, {
+          name: '投入',
+          nameLocation: 'middle',
+          nameGap: 24,
+          nameTextStyle: { color: T.muted, fontSize: 10 },
+          scale: true,
+          splitLine: { show: false },
+          axisLine: { show: true, lineStyle: { color: T.grid } },
+        }),
+        yAxis: valAxis(T, {
+          name: '产出',
+          nameTextStyle: { color: T.muted, fontSize: 10 },
+          scale: true,
+          axisLine: { show: true, lineStyle: { color: T.grid } },
+        }),
+        series: [
+          {
+            name: '方案 A',
+            type: 'scatter',
+            data: groupA,
+            symbolSize: 8,
+            itemStyle: { color: T.palette[0], opacity: 0.8 },
+          },
+          {
+            name: '方案 B',
+            type: 'scatter',
+            data: groupB,
+            symbolSize: 8,
+            itemStyle: { color: T.palette[1], opacity: 0.8 },
+          },
+        ],
+      };
+    },
+
+    // 9. 分布散点图：大量样本按类别着色，看两个连续变量的分布
+    'dist-scatter'(T) {
+      const groups = [
+        { name: '谷物', cx: 12, cy: 45, sx: 6, sy: 20 },
+        { name: '蔬果', cx: 4.5, cy: 65, sx: 2.5, sy: 30 },
+        { name: '肉蛋', cx: 22, cy: 25, sx: 6, sy: 12 },
+        { name: '乳品', cx: 7, cy: 170, sx: 3.5, sy: 65 },
+      ];
+      const data = [];
+      groups.forEach((g, gi) => {
+        for (let i = 0; i < 150; i++) {
+          // 半径取平方根，让点在椭圆内均匀铺开
+          const rr = Math.sqrt(hash01(i + 1, gi * 10 + 1));
+          const theta = hash01(i + 1, gi * 10 + 2) * Math.PI * 2;
+          const x = g.cx + Math.cos(theta) * rr * g.sx;
+          const y = g.cy + Math.sin(theta) * rr * g.sy;
+          const score = hash01(i + 1, gi * 10 + 3) * 100;
+          data.push([
+            Number(x.toFixed(1)),
+            Number(y.toFixed(1)),
+            // 第 2 维必须放分组名：piecewise visualMap 按类别名匹配着色，
+            // 放数字索引会全部落入 outOfRange（灰点，浅底上近似不可见）
+            g.name,
+            Number(score.toFixed(0)),
+          ]);
+        }
+      });
+      return {
+        ...base(T),
+        visualMap: [
+          {
+            show: true,
+            type: 'piecewise',
+            categories: groups.map((g) => g.name),
+            dimension: 2,
+            inRange: { color: T.palette.slice(0, groups.length) },
+            orient: 'horizontal',
+            left: 'center',
+            top: 0,
+            itemWidth: 9,
+            itemHeight: 9,
+            itemGap: 10,
+            textStyle: { color: T.muted, fontSize: 10 },
+            realtime: false,
+          },
+          {
+            show: false,
+            dimension: 3,
+            max: 100,
+            inRange: { colorLightness: [0.35, 0.7] },
+            realtime: false,
+          },
+        ],
+        grid: { left: 8, right: 16, top: 42, bottom: 30, containLabel: true },
+        xAxis: valAxis(T, {
+          name: '蛋白质 (g)',
+          nameLocation: 'middle',
+          nameGap: 24,
+          nameTextStyle: { color: T.muted, fontSize: 10 },
+          scale: true,
+          splitLine: { show: false },
+          axisLine: { show: true, lineStyle: { color: T.grid } },
+        }),
+        yAxis: valAxis(T, {
+          name: '钙 (mg)',
+          nameTextStyle: { color: T.muted, fontSize: 10 },
+          scale: true,
+          splitLine: { show: false },
+          axisLine: { show: true, lineStyle: { color: T.grid } },
+        }),
+        series: [{
+          name: '营养分布',
+          type: 'scatter',
+          data,
+          symbolSize: 5,
+          itemStyle: { opacity: 0.78 },
+          progressiveThreshold: 5000,
+        }],
+      };
+    },
+
+    // 10. 线性回归图：散点 + 最小二乘拟合线 + 公式标注。
+    //     拟合内联实现（与 ecStat 的 linear 方法等价），离线无需 echarts-stat。
+    regression(T) {
+      // 确定性示例样本：y ≈ 1.5x + 3.05，小幅噪声；实际使用时替换为真实数据
+      const data = [];
+      for (let i = 0; i < 120; i++) {
+        const x = Number(hash01(i + 1, 21).toFixed(3));
+        const noise = (hash01(i + 1, 22) - 0.5) * 0.12;
+        data.push([x, Number((1.5 * x + 3.05 + noise).toFixed(4))]);
+      }
+      // 最小二乘：斜率 / 截距 / R²
+      const n = data.length;
+      let sx = 0, sy = 0, sxx = 0, sxy = 0;
+      data.forEach(([x, y]) => { sx += x; sy += y; sxx += x * x; sxy += x * y; });
+      const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx);
+      const intercept = (sy - slope * sx) / n;
+      const meanY = sy / n;
+      let ssRes = 0, ssTot = 0;
+      data.forEach(([x, y]) => {
+        ssRes += Math.pow(y - (slope * x + intercept), 2);
+        ssTot += Math.pow(y - meanY, 2);
+      });
+      const r2 = 1 - ssRes / ssTot;
+      // 拟合线只画 [xMin, xMax] 两点，不外插到轴边界
+      const xMin = Math.min(...data.map((d) => d[0]));
+      const xMax = Math.max(...data.map((d) => d[0]));
+      const line = [
+        [xMin, Number((slope * xMin + intercept).toFixed(4))],
+        [xMax, Number((slope * xMax + intercept).toFixed(4))],
+      ];
+      const fmt = (v) => Number(v.toFixed(2));
+      return {
+        ...base(T),
+        legend: {
+          top: 0,
+          right: 0,
+          itemWidth: 9,
+          itemHeight: 9,
+          textStyle: { color: T.muted, fontSize: 10 },
+        },
+        grid: { left: 8, right: 132, top: 32, bottom: 38, containLabel: true },
+        xAxis: valAxis(T, {
+          name: '投入',
+          nameLocation: 'middle',
+          nameGap: 24,
+          nameTextStyle: { color: T.muted, fontSize: 10 },
+          scale: true,
+          splitLine: { show: false },
+          axisLine: { show: true, lineStyle: { color: T.grid } },
+        }),
+        yAxis: valAxis(T, {
+          name: '产出',
+          nameTextStyle: { color: T.muted, fontSize: 10 },
+          scale: true,
+          axisLine: { show: true, lineStyle: { color: T.grid } },
+        }),
+        series: [
+          {
+            name: '样本',
+            type: 'scatter',
+            data,
+            symbolSize: 6,
+            itemStyle: { color: T.palette[0], opacity: 0.55 },
+          },
+          {
+            name: '回归线',
+            type: 'line',
+            data: line,
+            symbol: 'none',
+            lineStyle: { width: 2.5, color: T.palette[1] },
+            endLabel: {
+              show: true,
+              distance: 8,
+              color: T.fg,
+              fontSize: 10,
+              formatter: 'y = ' + fmt(slope) + 'x + ' + fmt(intercept) + '  R² = ' + fmt(r2),
+            },
+          },
+        ],
+      };
+    },
+
+    // 11. 雷达图：3-8 维能力对比
+    radar(T) {
+      return {
+        ...base(T),
+        legend: {
+          top: 0,
+          left: 'center',
+          itemWidth: 9,
+          itemHeight: 9,
+          textStyle: { color: T.muted, fontSize: 10 },
+        },
+        radar: {
+          center: ['50%', '55%'],
+          radius: '58%',
+          indicator: [
+            { name: '性能', max: 100 },
+            { name: '易用性', max: 100 },
+            { name: '稳定性', max: 100 },
+            { name: '扩展性', max: 100 },
+            { name: '成本', max: 100 },
+            { name: '服务', max: 100 },
+          ],
+          axisName: { color: T.fg, fontSize: 10 },
+          splitNumber: 4,
+          splitArea: { show: false },
+          splitLine: { lineStyle: { color: T.grid } },
+          axisLine: { lineStyle: { color: T.grid } },
+        },
+        series: [{
+          type: 'radar',
+          symbolSize: 4,
+          data: [
+            {
+              value: [85, 78, 90, 72, 65, 80],
+              name: '方案 A',
+              areaStyle: { color: T.palette[0], opacity: 0.18 },
+              lineStyle: { color: T.palette[0], width: 2 },
+              itemStyle: { color: T.palette[0] },
+            },
+            {
+              value: [70, 88, 75, 85, 80, 72],
+              name: '方案 B',
+              areaStyle: { color: T.palette[1], opacity: 0.14 },
+              lineStyle: { color: T.palette[1], width: 2 },
+              itemStyle: { color: T.palette[1] },
+            },
+          ],
+        }],
+      };
+    },
+
+    // 12. 漏斗图：阶段转化与流失
+    funnel(T) {
+      const data = [
+        { value: 100, name: '曝光' },
+        { value: 62, name: '点击' },
+        { value: 38, name: '访问' },
+        { value: 22, name: '咨询' },
+        { value: 11, name: '成交' },
+      ];
+      return {
+        ...base(T),
+        series: [{
+          name: '转化漏斗',
+          type: 'funnel',
+          left: '6%',
+          width: '88%',
+          top: 8,
+          bottom: 8,
+          sort: 'descending',
+          gap: 3,
+          minSize: '12%',
+          maxSize: '100%',
+          itemStyle: { borderColor: T.card, borderWidth: 1 },
+          label: {
+            show: true,
+            position: 'inside',
+            color: '#ffffff',
+            fontSize: 10,
+            backgroundColor: 'rgba(15, 23, 42, 0.42)',
+            padding: [2, 6],
+            borderRadius: 3,
+            formatter: '{b}  {c}%',
+          },
+          data,
+        }],
+      };
+    },
+
+    // 13. 仪表盘：单个 KPI
+    gauge(T) {
+      return {
+        ...base(T),
+        series: [{
+          name: '目标完成率',
+          type: 'gauge',
+          startAngle: 210,
+          endAngle: -30,
+          min: 0,
+          max: 100,
+          radius: '76%',
+          center: ['50%', '55%'],
+          progress: { show: true, width: 12, itemStyle: { color: T.accent } },
+          axisLine: { lineStyle: { width: 12, color: [[1, T.grid]] } },
+          axisTick: { show: false },
+          splitLine: { show: false },
+          axisLabel: { show: false },
+          pointer: { show: false },
+          anchor: { show: false },
+          title: { offsetCenter: [0, '38%'], color: T.muted, fontSize: 11 },
+          detail: {
+            valueAnimation: false,
+            offsetCenter: [0, '4%'],
+            color: T.fg,
+            fontSize: 28,
+            fontWeight: 'bold',
+            formatter: '{value}%',
+          },
+          data: [{ value: 72, name: '目标完成率' }],
+        }],
+      };
+    },
+
+    // 14. 甘特图：任务起止区间按车道（泳道）排布。
+    //     静态最小版；dataZoom 缩放、状态/进度分层、工期拖拽见 templates/gantt-template.html。
+    gantt(T) {
+      const HEIGHT_RATIO = 0.6;
+      const lanes = ['设计组', '前端组', '后端组', '测试组'];
+      const statusColor = [T.palette[3], T.palette[0], T.palette[1], T.palette[4]];
+      const toTs = (s) => +new Date(s.replace(/-/g, '/'));
+      // [车道, 开始, 结束, 任务名, 状态, 进度(0-1；null = 整条实色)]
+      const tasks = [
+        [0, '2026-11-02', '2026-11-06', '需求评审', 2, 1],
+        [0, '2026-11-09', '2026-11-13', '视觉设计', 1, 0.6],
+        [0, '2026-11-16', '2026-11-20', '设计走查', 0, null],
+        [1, '2026-11-09', '2026-11-17', '管理后台', 1, 0.45],
+        [1, '2026-11-18', '2026-11-26', '数据看板', 0, null],
+        [2, '2026-11-05', '2026-11-18', '接口开发', 2, 1],
+        [2, '2026-11-19', '2026-11-24', '联调修复', 3, null],
+        [3, '2026-11-19', '2026-11-27', '回归测试', 0, null],
+      ].map((t) => [t[0], toTs(t[1]), toTs(t[2]), t[3], t[4], t[5]]);
+      const cs = (params) => ({
+        x: params.coordSys.x, y: params.coordSys.y,
+        width: params.coordSys.width, height: params.coordSys.height,
+      });
+      return {
+        ...base(T),
+        grid: { left: 64, right: 16, top: 26, bottom: 10 },
+        xAxis: {
+          type: 'time',
+          position: 'top',
+          splitLine: { lineStyle: { color: T.grid } },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { color: T.muted, fontSize: 9, hideOverlap: true, formatter: '{M}/{d}' },
+        },
+        yAxis: {
+          min: 0, max: lanes.length, inverse: true,   // 第 0 车道在最上方
+          axisTick: { show: false }, splitLine: { show: false },
+          axisLine: { show: false }, axisLabel: { show: false },
+        },
+        series: [
+          {
+            name: '任务',
+            type: 'custom',
+            renderItem: (params, api) => {
+              const lane = api.value(0);
+              const start = api.coord([api.value(1), lane]);
+              const end = api.coord([api.value(2), lane]);
+              const barLength = end[0] - start[0];
+              const barHeight = api.size([0, 1])[1] * HEIGHT_RATIO;
+              const bar = echarts.graphic.clipRectByRect(
+                { x: start[0], y: start[1], width: barLength, height: barHeight },
+                cs(params)
+              );
+              if (!bar) return;
+              const color = statusColor[api.value(4)] || statusColor[0];
+              let progress = api.value(5);
+              if (progress === null || Number.isNaN(progress)) progress = null;
+              const name = api.value(3) + '';
+              const text =
+                barLength > echarts.format.getTextRect(name, '9px sans-serif').width + 12
+                  ? name : '';
+              const children = [];
+              if (progress === null || progress >= 1) {
+                children.push({ type: 'rect', shape: bar, style: { fill: color } });
+              } else {
+                // 浅色 = 剩余工期，实色 = 已完成
+                children.push({ type: 'rect', shape: bar, style: { fill: color, opacity: 0.25 } });
+                const done = echarts.graphic.clipRectByRect(
+                  { x: start[0], y: start[1], width: barLength * progress, height: barHeight },
+                  cs(params)
+                );
+                if (done) children.push({ type: 'rect', shape: done, style: { fill: color } });
+              }
+              children.push({
+                type: 'rect', shape: bar,
+                style: { fill: 'transparent', text, textFill: '#fff', fontSize: 9 },
+              });
+              return { type: 'group', children };
+            },
+            encode: { x: [1, 2], y: 0 },
+            data: tasks,
+          },
+          {
+            name: '车道标签',
+            type: 'custom',
+            renderItem: (params, api) => {
+              const y = api.coord([0, api.value(0)])[1];
+              const cy = y + api.size([0, 1])[1] * HEIGHT_RATIO / 2;
+              if (cy < params.coordSys.y + 4
+                || cy > params.coordSys.y + params.coordSys.height - 4) return;
+              return { type: 'group', position: [0, cy], children: [
+                { type: 'rect', shape: { x: 4, y: -4, width: 8, height: 8, r: 2 },
+                  style: { fill: T.accent } },
+                { type: 'text', style: { x: 18, y: 0, text: api.value(1) + '',
+                  textAlign: 'left', textVerticalAlign: 'middle',
+                  textFill: T.fg, fontSize: 10 } },
+              ]};
+            },
+            encode: { x: -1, y: 0 },
+            data: lanes.map((name, i) => [i, name]),
+          },
+        ],
+      };
+    },
+  };
+
+  // ------------------------------------------------------------------
+  // 主题切换与渲染
+  // ------------------------------------------------------------------
+  const chartEls = Array.from(document.querySelectorAll('[data-chart]'));
+  const charts = new Map();
+
+  function renderAll() {
+    if (typeof echarts === 'undefined') return;
+    const T = readTheme();
+    chartEls.forEach((el) => {
+      const builder = builders[el.dataset.chart];
+      if (!builder) return;
+      let chart = charts.get(el);
+      if (!chart) {
+        chart = echarts.init(el, null, { renderer: 'canvas' });
+        charts.set(el, chart);
+      }
+      chart.setOption(builder(T), true);
+    });
+  }
+
+  function applyTheme(name, updateUrl) {
+    if (!THEMES.includes(name)) name = 'light';
+    document.body.dataset.theme = name;
+    document.querySelectorAll('.theme-btn').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.theme === name));
+    });
+    if (updateUrl) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('theme', name);
+        window.history.replaceState(null, '', url);
+      } catch (err) {
+        // file:// 下浏览器可能禁止 replaceState，忽略即可
+      }
+    }
+    renderAll();
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const initialTheme = THEMES.includes(params.get('theme')) ? params.get('theme') : 'light';
+
+  document.querySelectorAll('.theme-btn').forEach((btn) => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.theme, true));
+  });
+
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      charts.forEach((chart) => chart.resize());
+    }, 120);
+  });
+
+  requestAnimationFrame(() => {
+    applyTheme(initialTheme, false);
+    if (typeof echarts === 'undefined') {
+      document.getElementById('load-error').hidden = false;
+    }
+  });
+</script>
+</body>
+</html>

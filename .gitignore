@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Generated render output
+*.png
+!docs/**/*.png
+
+# Temp files from build-examples.py
+examples/.tmp-*
+
+# OS
+.DS_Store
+Thumbs.db

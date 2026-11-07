@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>项目排期甘特图</title>
+
+<!-- ① 图表库：CDN 优先，本地 assets/echarts.min.js 兜底（离线可用）。
+     复制本模板到其他目录时，请同步修正下方兜底的相对路径。 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+  if (!window.echarts) {
+    document.write('<script src="../assets/echarts.min.js"><\/script>');
+  }
+</script>
+
+<style>
+  /* ② 主题令牌（与 gallery.html、chart-design.md §3 一致）：
+        light（默认）/ business / dark / warm，改 body[data-theme] 即可切换 */
+  :root,
+  body[data-theme="light"] {
+    --bg: #ffffff;
+    --fg: #1f2329;
+    --muted: #86909c;
+    --grid: #e5e6eb;
+    --accent: #3b82f6;
+    --s1: #3b82f6; --s2: #10b981; --s3: #f59e0b;
+    --s4: #8b5cf6; --s5: #ef4444; --s6: #14b8a6;
+  }
+  body[data-theme="business"] {
+    --bg: #fffdf8;
+    --fg: #1f2937;
+    --muted: #6b7280;
+    --grid: #e7e0d4;
+    --accent: #1d4ed8;
+    --s1: #1d4ed8; --s2: #b8860b; --s3: #64748b;
+    --s4: #0f766e; --s5: #9333ea; --s6: #78716c;
+  }
+  body[data-theme="dark"] {
+    --bg: #0f172a;
+    --fg: #f1f5f9;
+    --muted: #94a3b8;
+    --grid: #1e293b;
+    --accent: #38bdf8;
+    --s1: #38bdf8; --s2: #34d399; --s3: #a78bfa;
+    --s4: #f472b6; --s5: #fbbf24; --s6: #22d3ee;
+  }
+  body[data-theme="warm"] {
+    --bg: #fffaf5;
+    --fg: #292524;
+    --muted: #78716c;
+    --grid: #f0e0d2;
+    --accent: #f97316;
+    --s1: #f97316; --s2: #e11d48; --s3: #f59e0b;
+    --s4: #be123c; --s5: #ea580c; --s6: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  /* 1rem = 视口宽/75：宽 1200 时 1rem=16px，字号随宽度等比缩放 */
+  html { font-size: calc(100vw / 75); }
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg); color: var(--fg);
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+                 "Source Han Sans SC", sans-serif;
+  }
+  .stage {
+    display: flex; flex-direction: column;
+    width: 100vw; height: 100vh;
+    padding: 2.5rem 3rem 2rem;
+    background: var(--bg);
+  }
+  .head { flex: 0 0 auto; }
+  .title { font-size: 1.75rem; font-weight: 700; letter-spacing: 0.02em; margin: 0; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin: 0.5rem 0 0; }
+  .legend {
+    display: flex; gap: 1.2rem; margin-top: 0.7rem; flex-wrap: wrap;
+  }
+  .legend .item {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    font-size: 0.85rem; color: var(--muted);
+  }
+  .legend .dot {
+    width: 0.7rem; height: 0.7rem; border-radius: 0.2rem;
+    display: inline-block;
+  }
+  .chart { flex: 1 1 0; min-height: 0; }
+  .foot { flex: 0 0 auto; margin-top: 1rem; font-size: 0.8rem; color: var(--muted); }
+  #error { display: none; margin: auto; font-size: 1.2rem; color: #ef4444; }
+  /* 拖拽冲突等提示（替代原示例的 alert，避免阻塞渲染） */
+  #toast {
+    position: fixed; left: 50%; bottom: 4rem; transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.88); color: #fff;
+    padding: 0.55rem 1.1rem; border-radius: 0.6rem; font-size: 0.9rem;
+    opacity: 0; transition: opacity 0.25s ease; pointer-events: none; z-index: 9;
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+
+<!-- ③ 主题：light（默认）| business | dark | warm -->
+<body data-theme="light">
+<div class="stage">
+  <div class="head">
+    <!-- ④ 标题 -->
+    <h1 class="title">项目排期甘特图</h1>
+    <!-- ⑤ 副标题：说明数据范围与单位 -->
+    <p class="subtitle">2026-11-02 - 2026-11-27 · 按小组分道 · 状态着色</p>
+    <!-- 状态图例：由下方 STATUS 自动生成 -->
+    <div class="legend" id="legend"></div>
+  </div>
+  <div id="chart" class="chart"></div>
+  <div id="error">ECharts 未加载成功：请检查网络或本地 echarts.min.js 兜底路径</div>
+  <!-- ⑥ 脚注：数据来源说明，不需要时整行删除 -->
+  <div class="foot">数据来源：示例数据 · 条形浅色部分为剩余工期 · 点击右上角工具箱图标可开启拖拽调整（HTML 交互，PNG 为静态截图）</div>
+</div>
+<div id="toast"></div>
+
+<script>
+  // 多系列用 C.palette，单系列用 C.accent；option.color 统一挂载调色盘
+  const C = {
+    fg: cssVar('--fg'),
+    muted: cssVar('--muted'),
+    grid: cssVar('--grid'),
+    accent: cssVar('--accent'),
+    bg: cssVar('--bg'),
+    palette: [1, 2, 3, 4, 5, 6].map((i) => cssVar('--s' + i)),
+  };
+  // 字号随视口宽度等比缩放（以 1200 逻辑宽为基准），最小 9px
+  function fs(n) { return Math.max(9, Math.round(n * window.innerWidth / 1200)); }
+  function cssVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
+  function hexToRgba(hex, alpha) {
+    const raw = String(hex || '').replace('#', '');
+    const full = raw.length === 3 ? raw.split('').map((c) => c + c).join('') : raw;
+    const num = parseInt(full, 16);
+    if (Number.isNaN(num)) return hex;
+    return 'rgba(' + ((num >> 16) & 255) + ', ' + ((num >> 8) & 255) + ', '
+      + (num & 255) + ', ' + alpha + ')';
+  }
+
+  // ---------------------------------------------------------------------------
+  // ⑦ 甘特图（参考 ECharts 官方「机场航班甘特图」示例改写）：
+  //    custom series + 时间轴 + dataZoom 缩放 + 工期条拖拽调整。
+  //    车道（泳道）纵向排布，第 0 车道在最上方（yAxis.inverse）；
+  //    条形自车道线向下绘制，占车道高度的 HEIGHT_RATIO。
+  // ---------------------------------------------------------------------------
+  const HEIGHT_RATIO = 0.6;                  // 条形高度 / 车道高度
+  const DIM_LANE = 0;                        // 数据维度下标
+  const DIM_START = 1;
+  const DIM_END = 2;
+  const DIM_NAME = 3;
+  const DIM_STATUS = 4;
+  const DIM_PROGRESS = 5;
+
+  // 车道：name 必填，meta 可选（显示在车道名下方的小字）
+  const LANES = [
+    { name: '设计组', meta: 'UI / 交互' },
+    { name: '前端组', meta: 'Web' },
+    { name: '后端组', meta: 'API' },
+    { name: '测试组', meta: 'QA' },
+  ];
+
+  // 状态着色：color 取主题 6 色盘，可按语义自行调整
+  const STATUS = [
+    { name: '计划中', color: C.palette[3] },
+    { name: '进行中', color: C.palette[0] },
+    { name: '已完成', color: C.palette[1] },
+    { name: '有风险', color: C.palette[4] },
+  ];
+
+  // 任务：[车道索引, 开始, 结束, 任务名, 状态索引, 进度(0-1；null/省略 = 整条实色)]
+  // 时间支持 'YYYY-MM-DD' 或 'YYYY-MM-DD HH:mm'，内部统一转时间戳
+  const TASKS = [
+    [0, '2026-11-02', '2026-11-06', '需求评审', 2, 1],
+    [0, '2026-11-09', '2026-11-13', '视觉设计', 1, 0.6],
+    [0, '2026-11-16', '2026-11-20', '设计走查', 0, null],
+    [1, '2026-11-09', '2026-11-17', '管理后台', 1, 0.45],
+    [1, '2026-11-18', '2026-11-26', '数据看板', 0, null],
+    [2, '2026-11-05', '2026-11-18', '接口开发', 2, 1],
+    [2, '2026-11-19', '2026-11-24', '联调修复', 3, null],
+    [3, '2026-11-19', '2026-11-27', '回归测试', 0, null],
+  ];
+
+  // 日期字符串 -> 时间戳（'-' 替换为 '/' 兼容各浏览器；数字原样返回）
+  function toTs(s) {
+    return typeof s === 'number' ? s : +new Date(String(s).replace(/-/g, '/'));
+  }
+  const taskData = TASKS.map((t) => [
+    t[0], toTs(t[1]), toTs(t[2]), t[3], t[4],
+    t[5] === undefined || t[5] === null ? null : t[5],
+  ]);
+  const laneData = LANES.map((l, i) => [i, l.name, l.meta || '']);
+
+  // 状态图例（HTML 色块，随主题切换）
+  document.getElementById('legend').innerHTML = STATUS.map((s) =>
+    '<span class="item"><i class="dot" style="background:' + s.color
+    + '"></i>' + s.name + '</span>').join('');
+
+  // 拖拽提示条
+  let _toastTimer = 0;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  function makeOption() {
+    return {
+      animation: false,              // 静态截图必须关闭动画
+      tooltip: { show: false },      // 静态图片无交互；HTML 交互模式可自行开启
+      textStyle: {
+        fontFamily: '"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",sans-serif',
+      },
+      toolbox: {                     // 拖拽开关（参考机场甘特图示例）
+        right: 20, top: 0, itemSize: 20,
+        iconStyle: { borderColor: C.muted },
+        emphasis: { iconStyle: { borderColor: C.accent } },
+        feature: {
+          myDrag: {
+            show: true,
+            title: '开启/关闭\n拖拽调整',
+            icon: 'path://M990.55 380.08 q11.69 0 19.88 8.19 q7.02 7.01 7.02 18.71 l0 480.65 q-1.17 43.27 -29.83 71.93 q-28.65 28.65 -71.92 29.82 l-813.96 0 q-43.27 -1.17 -72.5 -30.41 q-28.07 -28.07 -29.24 -71.34 l0 -785.89 q1.17 -43.27 29.24 -72.5 q29.23 -29.24 72.5 -29.24 l522.76 0 q11.7 0 18.71 7.02 q8.19 8.18 8.19 18.71 q0 11.69 -7.6 19.29 q-7.6 7.61 -19.3 7.61 l-518.08 0 q-22.22 1.17 -37.42 16.37 q-15.2 15.2 -15.2 37.42 l0 775.37 q0 23.39 15.2 38.59 q15.2 15.2 37.42 15.2 l804.6 0 q22.22 0 37.43 -15.2 q15.2 -15.2 16.37 -38.59 l0 -474.81 q0 -11.7 7.02 -18.71 q8.18 -8.19 18.71 -8.19 l0 0 ZM493.52 723.91 l-170.74 -170.75 l509.89 -509.89 q23.39 -23.39 56.13 -21.05 q32.75 1.17 59.65 26.9 l47.94 47.95 q25.73 26.89 27.49 59.64 q1.75 32.75 -21.64 57.3 l-508.72 509.9 l0 0 ZM870.09 80.69 l-56.13 56.14 l94.72 95.9 l56.14 -57.31 q8.19 -9.35 8.19 -21.05 q-1.17 -12.86 -10.53 -22.22 l-47.95 -49.12 q-10.52 -9.35 -23.39 -9.35 q-11.69 -1.17 -21.05 7.01 l0 0 ZM867.75 272.49 l-93.56 -95.9 l-380.08 380.08 l94.73 94.73 l378.91 -378.91 l0 0 ZM322.78 553.16 l38.59 39.77 l-33.92 125.13 l125.14 -33.92 l38.59 38.6 l-191.79 52.62 q-5.85 1.17 -12.28 0 q-6.44 -1.17 -11.11 -5.84 q-4.68 -4.68 -5.85 -11.7 q-2.34 -5.85 0 -11.69 l52.63 -192.97 l0 0 Z',
+            onclick: onDragSwitchClick,
+          },
+        },
+      },
+      dataZoom: [
+        // 顺序即下标：拖拽逻辑读取 dataZoom[1]（insideX）与 dataZoom[3]（insideY）
+        { // 0: 底部时间滑块。时间跨度大时收窄 start/end 聚焦窗口
+          type: 'slider', xAxisIndex: 0, filterMode: 'weakFilter',
+          height: 20, bottom: 0, start: 0, end: 100,
+          borderColor: C.grid, backgroundColor: 'transparent',
+          fillerColor: hexToRgba(C.accent, 0.12),
+          handleIcon: 'path://M10.7,11.9H9.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4h1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+          handleSize: '80%', handleStyle: { color: C.accent },
+          dataBackground: {
+            lineStyle: { color: C.grid },
+            areaStyle: { color: hexToRgba(C.muted, 0.08) },
+          },
+          showDetail: false,
+        },
+        { // 1: 鼠标拖动平移（拖拽模式下自动禁用，避免与条形拖拽冲突）
+          type: 'inside', id: 'insideX', xAxisIndex: 0,
+          filterMode: 'weakFilter', start: 0, end: 100,
+          zoomOnMouseWheel: false, moveOnMouseMove: true,
+        },
+        { // 2: 右侧车道滑块（车道多时可上下平移）
+          type: 'slider', yAxisIndex: 0, zoomLock: true,
+          width: 10, right: 10, top: 56, bottom: 24,
+          start: 0, end: 100, handleSize: 0,
+          borderColor: C.grid, backgroundColor: 'transparent',
+          fillerColor: hexToRgba(C.accent, 0.12),
+          showDetail: false,
+        },
+        { // 3: 滚轮/拖动平移车道
+          type: 'inside', id: 'insideY', yAxisIndex: 0,
+          start: 0, end: 100,
+          zoomOnMouseWheel: false, moveOnMouseMove: true, moveOnMouseWheel: true,
+        },
+      ],
+      grid: {
+        show: true,
+        top: 56,        // 顶部时间轴标签 + 工具箱
+        bottom: 24,     // 底部时间滑块
+        left: 100,      // 车道名区；车道名较长时加大
+        right: 20,
+        backgroundColor: C.bg,
+        borderWidth: 0,
+      },
+      xAxis: {
+        type: 'time',
+        position: 'top',
+        splitLine: { lineStyle: { color: [C.grid] } },
+        axisLine: { show: false },
+        axisTick: { lineStyle: { color: C.muted } },
+        axisLabel: {
+          color: C.muted, fontSize: fs(11), inside: false, align: 'center',
+          hideOverlap: true, formatter: '{M}/{d}',
+        },
+      },
+      yAxis: {
+        min: 0,
+        max: LANES.length,
+        inverse: true,  // 第 0 车道显示在最上方；此时条形自车道线向下绘制
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLine: { show: false },
+        axisLabel: { show: false },  // 车道名由「车道标签」系列绘制
+      },
+      series: [
+        {
+          id: 'taskData',
+          name: '任务',
+          type: 'custom',
+          renderItem: renderGanttItem,
+          dimensions: ['lane', 'start', 'end', 'name', 'status', 'progress'],
+          encode: {
+            x: [DIM_START, DIM_END],   // 一个数据项占 [开始, 结束] 一段时间区间
+            y: DIM_LANE,
+          },
+          data: taskData,
+        },
+        {
+          name: '车道标签',
+          type: 'custom',
+          renderItem: renderLaneLabelItem,
+          encode: { x: -1, y: 0 },
+          data: laneData,
+        },
+      ],
+    };
+  }
+
+  // 条形：状态着色 + 进度分层（浅色 = 剩余工期）+ 条内任务名（放不下自动省略）
+  function renderGanttItem(params, api) {
+    const laneIndex = api.value(DIM_LANE);
+    const startPt = api.coord([api.value(DIM_START), laneIndex]);
+    const endPt = api.coord([api.value(DIM_END), laneIndex]);
+    const coordSys = params.coordSys;
+    _cartesianXBounds[0] = coordSys.x;
+    _cartesianXBounds[1] = coordSys.x + coordSys.width;
+    _cartesianYBounds[0] = coordSys.y;
+    _cartesianYBounds[1] = coordSys.y + coordSys.height;
+
+    const barLength = endPt[0] - startPt[0];
+    const barHeight = api.size([0, 1])[1] * HEIGHT_RATIO;
+    const x = startPt[0];
+    const y = startPt[1];                    // inverse 轴：条形自车道线向下画
+
+    const status = STATUS[api.value(DIM_STATUS)] || STATUS[0];
+    let progress = api.value(DIM_PROGRESS);
+    if (progress === null || Number.isNaN(progress)) progress = null;
+
+    const name = api.value(DIM_NAME) + '';
+    const nameWidth = echarts.format.getTextRect(name, fs(11) + 'px sans-serif').width;
+    const text = barLength > nameWidth + 24 ? name : '';
+
+    const barRect = clipRectByRect(params, {
+      x: x, y: y, width: barLength, height: barHeight,
+    });
+    if (!barRect) return;                    // 完全在可视区外
+
+    const children = [];
+    if (progress === null || progress >= 1) {
+      children.push({ type: 'rect', shape: barRect, style: { fill: status.color } });
+    } else {
+      // 未完成部分淡色、已完成部分实色
+      children.push({
+        type: 'rect', shape: barRect,
+        style: { fill: status.color, opacity: 0.25 },
+      });
+      const doneRect = clipRectByRect(params, {
+        x: x, y: y,
+        width: barLength * Math.min(Math.max(progress, 0), 1),
+        height: barHeight,
+      });
+      if (doneRect) {
+        children.push({ type: 'rect', shape: doneRect, style: { fill: status.color } });
+      }
+    }
+    // 条内任务名（透明矩形承载文字，随 barRect 一起被裁剪）
+    children.push({
+      type: 'rect', shape: barRect,
+      style: { fill: 'transparent', text: text, textFill: '#fff', fontSize: fs(11) },
+    });
+    return { type: 'group', children: children };
+  }
+
+  // 车道标签：色点 + 车道名（+ 可选小字），与条形垂直居中
+  function renderLaneLabelItem(params, api) {
+    const y = api.coord([0, api.value(0)])[1];
+    const barHeight = api.size([0, 1])[1] * HEIGHT_RATIO;
+    const cy = y + barHeight / 2;
+    const top = params.coordSys.y;
+    const bottom = top + params.coordSys.height;
+    if (cy < top + 4 || cy > bottom - 4) return;   // 越出可视区不画
+    const children = [
+      {
+        type: 'rect',
+        shape: { x: 10, y: -fs(4.5), width: fs(9), height: fs(9), r: 2 },
+        style: { fill: C.accent },
+      },
+      {
+        type: 'text',
+        style: {
+          x: 26, y: 0, text: api.value(1) + '',
+          textAlign: 'left', textVerticalAlign: 'middle',
+          textFill: C.fg, fontSize: fs(12),
+        },
+      },
+    ];
+    const meta = api.value(2);
+    if (meta) {
+      children.push({
+        type: 'text',
+        style: {
+          x: 26, y: fs(7), text: meta + '',
+          textAlign: 'left', textVerticalAlign: 'top',
+          textFill: C.muted, fontSize: fs(9),
+        },
+      });
+    }
+    return { type: 'group', position: [0, cy], children: children };
+  }
+
+  function clipRectByRect(params, rect) {
+    return echarts.graphic.clipRectByRect(rect, {
+      x: params.coordSys.x,
+      y: params.coordSys.y,
+      width: params.coordSys.width,
+      height: params.coordSys.height,
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  //  拖拽调整（移植自 ECharts 官方「机场航班甘特图」示例）
+  //  点工具箱图标开启后：按住条形拖动，松手落点合法则写回数据；
+  //  拖到网格边缘外时 dataZoom 自动平移；同车道时间冲突时提示。
+  // ---------------------------------------------------------------------------
+  const DATA_ZOOM_AUTO_MOVE_THROTTLE = 30;
+  const DATA_ZOOM_X_INSIDE_INDEX = 1;      // dataZoom 数组中 insideX 的下标
+  const DATA_ZOOM_Y_INSIDE_INDEX = 3;      // insideY 的下标
+  const DATA_ZOOM_AUTO_MOVE_SPEED = 0.2;
+  const DATA_ZOOM_AUTO_MOVE_DETECT_AREA_WIDTH = 30;
+  let _draggable = false;
+  let _draggingEl = null;
+  let _dropShadow = null;
+  let _draggingCursorOffset = [0, 0];
+  let _draggingTimeLength = 0;
+  let _draggingRecord = null;
+  let _dropRecord = null;
+  let _cartesianXBounds = [];
+  let _cartesianYBounds = [];
+  let _autoDataZoomAnimator = null;
+
+  function onDragSwitchClick(model, api, type) {
+    _draggable = !_draggable;
+    myChart.setOption({
+      dataZoom: [
+        { id: 'insideX', disabled: _draggable },
+        { id: 'insideY', disabled: _draggable },
+      ],
+    });
+    this.model.setIconStatus(type, _draggable ? 'emphasis' : 'normal');
+  }
+
+  function initDrag() {
+    _autoDataZoomAnimator = makeAnimator(dispatchDataZoom);
+
+    myChart.on('mousedown', function (param) {
+      // 只响应任务条（系列 0）；seriesIndex === 1 是车道标签
+      if (!_draggable || !param || param.seriesIndex !== 0) return;
+      _draggingRecord = {
+        dataIndex: param.dataIndex,
+        categoryIndex: param.value[DIM_LANE],
+        timeArrival: param.value[DIM_START],
+        timeDeparture: param.value[DIM_END],
+      };
+      const style = {
+        lineWidth: 2,
+        fill: 'rgba(255,0,0,0.1)',
+        stroke: 'rgba(255,0,0,0.8)',
+        lineDash: [6, 3],
+      };
+      _draggingEl = addOrUpdateBar(_draggingEl, _draggingRecord, style, 100);
+      _draggingCursorOffset = [
+        _draggingEl.position[0] - param.event.offsetX,
+        _draggingEl.position[1] - param.event.offsetY,
+      ];
+      _draggingTimeLength =
+        _draggingRecord.timeDeparture - _draggingRecord.timeArrival;
+    });
+
+    myChart.getZr().on('mousemove', function (event) {
+      if (!_draggingEl) return;
+      const cursorX = event.offsetX;
+      const cursorY = event.offsetY;
+      _draggingEl.attr('position', [
+        _draggingCursorOffset[0] + cursorX,
+        _draggingCursorOffset[1] + cursorY,
+      ]);
+      prepareDrop();
+      autoDataZoomWhenDraggingOutside(cursorX, cursorY);
+    });
+
+    myChart.getZr().on('mouseup', function () {
+      if (_draggingEl && _dropRecord) {
+        updateTaskData() &&
+          myChart.setOption({
+            series: { id: 'taskData', data: taskData },
+          });
+      }
+      dragRelease();
+    });
+
+    myChart.getZr().on('globalout', dragRelease);
+
+    function dragRelease() {
+      _autoDataZoomAnimator.stop();
+      if (_draggingEl) {
+        myChart.getZr().remove(_draggingEl);
+        _draggingEl = null;
+      }
+      if (_dropShadow) {
+        myChart.getZr().remove(_dropShadow);
+        _dropShadow = null;
+      }
+      _dropRecord = _draggingRecord = null;
+    }
+
+    function addOrUpdateBar(el, itemData, style, z) {
+      const pointArrival = myChart.convertToPixel('grid', [
+        itemData.timeArrival, itemData.categoryIndex,
+      ]);
+      const pointDeparture = myChart.convertToPixel('grid', [
+        itemData.timeDeparture, itemData.categoryIndex,
+      ]);
+      const barLength = pointDeparture[0] - pointArrival[0];
+      const barHeight =
+        Math.abs(
+          myChart.convertToPixel('grid', [0, 0])[1] -
+            myChart.convertToPixel('grid', [0, 1])[1]
+        ) * HEIGHT_RATIO;
+      if (!el) {
+        el = new echarts.graphic.Rect({
+          shape: { x: 0, y: 0, width: 0, height: 0 },
+          style: style,
+          z: z,
+        });
+        myChart.getZr().add(el);
+      }
+      el.attr({
+        shape: { x: 0, y: 0, width: barLength, height: barHeight },
+        // inverse 轴：条形自车道线向下延伸
+        position: [pointArrival[0], pointArrival[1]],
+      });
+      return el;
+    }
+
+    function prepareDrop() {
+      // 计算落点（条形左上角对应的数据坐标），生成落点阴影
+      const xPixel = _draggingEl.shape.x + _draggingEl.position[0];
+      const yPixel = _draggingEl.shape.y + _draggingEl.position[1];
+      const cursorData = myChart.convertFromPixel('grid', [xPixel, yPixel]);
+      if (cursorData) {
+        _dropRecord = {
+          categoryIndex: Math.floor(cursorData[1]),
+          timeArrival: cursorData[0],
+          timeDeparture: cursorData[0] + _draggingTimeLength,
+        };
+        _dropShadow = addOrUpdateBar(
+          _dropShadow, _dropRecord, { fill: 'rgba(0,0,0,0.4)' }, 99
+        );
+      }
+    }
+
+    function updateTaskData() {
+      const movingItem = taskData[_draggingRecord.dataIndex];
+      // 冲突检测：同车道时间区间重叠则拒绝落点
+      for (let i = 0; i < taskData.length; i++) {
+        const dataItem = taskData[i];
+        if (
+          dataItem !== movingItem &&
+          _dropRecord.categoryIndex === dataItem[DIM_LANE] &&
+          _dropRecord.timeArrival < dataItem[DIM_END] &&
+          _dropRecord.timeDeparture > dataItem[DIM_START]
+        ) {
+          showToast('时间冲突：目标车道该时段已有任务，请另选空闲时段');
+          return false;
+        }
+      }
+      movingItem[DIM_LANE] = _dropRecord.categoryIndex;
+      movingItem[DIM_START] = _dropRecord.timeArrival;
+      movingItem[DIM_END] = _dropRecord.timeDeparture;
+      return true;
+    }
+
+    function autoDataZoomWhenDraggingOutside(cursorX, cursorY) {
+      // 拖到网格边缘外时，自动平移 dataZoom
+      const cursorDistX = getCursorCartesianDist(cursorX, _cartesianXBounds);
+      const cursorDistY = getCursorCartesianDist(cursorY, _cartesianYBounds);
+      if (cursorDistX !== 0 || cursorDistY !== 0) {
+        _autoDataZoomAnimator.start({
+          cursorDistX: cursorDistX,
+          cursorDistY: cursorDistY,
+        });
+      } else {
+        _autoDataZoomAnimator.stop();
+      }
+    }
+
+    function dispatchDataZoom(params) {
+      const option = myChart.getOption();
+      const optionInsideX = option.dataZoom[DATA_ZOOM_X_INSIDE_INDEX];
+      const optionInsideY = option.dataZoom[DATA_ZOOM_Y_INSIDE_INDEX];
+      const batch = [];
+      prepareBatch(
+        batch, 'insideX', optionInsideX.start, optionInsideX.end,
+        params.cursorDistX
+      );
+      prepareBatch(
+        batch, 'insideY', optionInsideY.start, optionInsideY.end,
+        -params.cursorDistY
+      );
+      batch.length &&
+        myChart.dispatchAction({ type: 'dataZoom', batch: batch });
+
+      function prepareBatch(batch, id, start, end, cursorDist) {
+        if (cursorDist === 0) return;
+        const sign = cursorDist / Math.abs(cursorDist);
+        const size = end - start;
+        const delta = DATA_ZOOM_AUTO_MOVE_SPEED * sign;
+        start += delta;
+        end += delta;
+        if (end > 100) { end = 100; start = end - size; }
+        if (start < 0) { start = 0; end = start + size; }
+        batch.push({ dataZoomId: id, start: start, end: end });
+      }
+    }
+
+    function getCursorCartesianDist(cursorXY, bounds) {
+      const dist0 = cursorXY - (bounds[0] + DATA_ZOOM_AUTO_MOVE_DETECT_AREA_WIDTH);
+      const dist1 = cursorXY - (bounds[1] - DATA_ZOOM_AUTO_MOVE_DETECT_AREA_WIDTH);
+      return dist0 * dist1 <= 0
+        ? 0                              // 光标在网格内
+        : dist0 < 0
+        ? dist0                          // 光标在网格左/上侧
+        : dist1;                         // 光标在网格右/下侧
+    }
+
+    function makeAnimator(callback) {
+      let requestId = null;
+      let callbackParams = null;
+      // 用节流避免高频 dispatchAction
+      callback = echarts.throttle(callback, DATA_ZOOM_AUTO_MOVE_THROTTLE);
+      function onFrame() {
+        callback(callbackParams);
+        requestId = requestAnimationFrame(onFrame);
+      }
+      return {
+        start: function (params) {
+          callbackParams = params;
+          if (requestId == null) onFrame();
+        },
+        stop: function () {
+          if (requestId != null) cancelAnimationFrame(requestId);
+          requestId = callbackParams = null;
+        },
+      };
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  //  渲染入口
+  // ---------------------------------------------------------------------------
+  let myChart = null;   // 顶层声明：拖拽逻辑闭包引用
+  const el = document.getElementById('chart');
+  if (typeof echarts === 'undefined') {
+    document.getElementById('error').style.display = 'block';
+  } else {
+    myChart = echarts.init(el, null, { renderer: 'canvas' });
+    myChart.setOption(makeOption());
+    initDrag();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>月度活跃用户趋势</title>
+
+<!-- ① 图表库：CDN 优先，本地 assets/echarts.min.js 兜底（离线可用）。
+     复制本模板到其他目录时，请同步修正下方兜底的相对路径。 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+  if (!window.echarts) {
+    document.write('<script src="../assets/echarts.min.js"><\/script>');
+  }
+</script>
+
+<style>
+  /* ② 主题令牌（与 gallery.html、chart-design.md §3 一致）：
+        light（默认）/ business / dark / warm，改 body[data-theme] 即可切换 */
+  :root,
+  body[data-theme="light"] {
+    --bg: #ffffff;
+    --fg: #1f2329;
+    --muted: #86909c;
+    --grid: #e5e6eb;
+    --accent: #3b82f6;
+    --s1: #3b82f6; --s2: #10b981; --s3: #f59e0b;
+    --s4: #8b5cf6; --s5: #ef4444; --s6: #14b8a6;
+  }
+  body[data-theme="business"] {
+    --bg: #fffdf8;
+    --fg: #1f2937;
+    --muted: #6b7280;
+    --grid: #e7e0d4;
+    --accent: #1d4ed8;
+    --s1: #1d4ed8; --s2: #b8860b; --s3: #64748b;
+    --s4: #0f766e; --s5: #9333ea; --s6: #78716c;
+  }
+  body[data-theme="dark"] {
+    --bg: #0f172a;
+    --fg: #f1f5f9;
+    --muted: #94a3b8;
+    --grid: #1e293b;
+    --accent: #38bdf8;
+    --s1: #38bdf8; --s2: #34d399; --s3: #a78bfa;
+    --s4: #f472b6; --s5: #fbbf24; --s6: #22d3ee;
+  }
+  body[data-theme="warm"] {
+    --bg: #fffaf5;
+    --fg: #292524;
+    --muted: #78716c;
+    --grid: #f0e0d2;
+    --accent: #f97316;
+    --s1: #f97316; --s2: #e11d48; --s3: #f59e0b;
+    --s4: #be123c; --s5: #ea580c; --s6: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  /* 1rem = 视口宽/75：宽 1200 时 1rem=16px，字号随宽度等比缩放 */
+  html { font-size: calc(100vw / 75); }
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg); color: var(--fg);
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+                 "Source Han Sans SC", sans-serif;
+  }
+  .stage {
+    display: flex; flex-direction: column;
+    width: 100vw; height: 100vh;
+    padding: 2.5rem 3rem 2rem;
+    background: var(--bg);
+  }
+  .head { flex: 0 0 auto; }
+  .title { font-size: 1.75rem; font-weight: 700; letter-spacing: 0.02em; margin: 0; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin: 0.5rem 0 0; }
+  .chart { flex: 1 1 0; min-height: 0; }
+  .foot { flex: 0 0 auto; margin-top: 1rem; font-size: 0.8rem; color: var(--muted); }
+  #error { display: none; margin: auto; font-size: 1.2rem; color: #ef4444; }
+</style>
+</head>
+
+<!-- ③ 主题：light（默认）| business | dark | warm -->
+<body data-theme="light">
+<div class="stage">
+  <div class="head">
+    <!-- ④ 标题 -->
+    <h1 class="title">月度活跃用户趋势</h1>
+    <!-- ⑤ 副标题：说明数据范围与单位 -->
+    <p class="subtitle">2024 年 1 月 - 12 月 · 单位：万人</p>
+  </div>
+  <div id="chart" class="chart"></div>
+  <div id="error">ECharts 未加载成功：请检查网络或本地 echarts.min.js 兜底路径</div>
+  <!-- ⑥ 脚注：数据来源说明，不需要时整行删除 -->
+  <div class="foot">数据来源：示例数据</div>
+</div>
+
+<script>
+  // 多系列用 C.palette，单系列用 C.accent；option.color 统一挂载调色盘
+  const C = {
+    fg: cssVar('--fg'),
+    muted: cssVar('--muted'),
+    grid: cssVar('--grid'),
+    accent: cssVar('--accent'),
+    bg: cssVar('--bg'),
+    palette: [1, 2, 3, 4, 5, 6].map((i) => cssVar('--s' + i)),
+  };
+  // 字号随视口宽度等比缩放（以 1200 逻辑宽为基准），最小 9px
+  function fs(n) { return Math.max(9, Math.round(n * window.innerWidth / 1200)); }
+  function cssVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
+
+  // ⑦ ECharts option：按数据特征与用户喜好替换图型与配色，
+  //    图型选择与 4 套主题见 references/chart-design.md；效果预览见 gallery.html
+  const option = {
+    animation: false,              // 静态截图必须关闭动画
+    tooltip: { show: false },      // 静态图片无交互，关闭 tooltip
+    color: C.palette,              // 多系列自动按主题调色盘取色
+    grid: { left: 50, right: 30, top: 30, bottom: 40 },
+    xAxis: {
+      type: 'category',
+      data: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+      axisLine: { lineStyle: { color: C.grid } },
+      axisTick: { show: false },
+      axisLabel: { color: C.muted, fontSize: fs(12) },
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: C.grid, type: 'dashed' } },
+      axisLabel: { color: C.muted, fontSize: fs(12) },
+    },
+    series: [{
+      type: 'line',
+      data: [82, 94, 88, 105, 118, 124, 117, 131, 142, 156, 149, 168],
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: fs(8),
+      lineStyle: { width: 3, color: C.accent },
+      itemStyle: { color: C.accent },
+      areaStyle: { opacity: 0.15, color: C.accent },
+      label: { show: true, color: C.fg, fontSize: fs(11), distance: fs(8) },
+    }],
+  };
+
+  const el = document.getElementById('chart');
+  if (typeof echarts === 'undefined') {
+    document.getElementById('error').style.display = 'block';
+  } else {
+    echarts.init(el, null, { renderer: 'canvas' }).setOption(option);
+  }
+</script>
+</body>
+</html>
