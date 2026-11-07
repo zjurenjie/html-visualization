@@ -69,4 +69,4 @@ python scripts/html2img.py <工作文件>.html --ratio <比例> --width <逻辑�
 - `templates/gallery.html` — 14 种图型 × 4 套主题的可交互预览页（仅用于选型/选主题，不参与最终截图；支持 `?theme=light|business|dark|warm`）
 - `scripts/html2img.py` — HTML → 指定比例 PNG 渲染脚本
 - `assets/echarts.min.js` — 本地 ECharts（离线兜底）
-- `references/chart-design.md` — 图型判定表、4 套主题令牌、13 种 ECharts 配方、设计规范
+- `references/chart-design.md` — 图型判定表、4 套主题令牌、14 种 ECharts 配方、设计规范
