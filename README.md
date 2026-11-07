@@ -196,7 +196,8 @@ html-visualization/
 │   └── chart-design.md             # 图型判定表、主题令牌、ECharts 配方、设计规范
 ├── scripts/
 │   ├── html2img.py                 # HTML → 指定比例 PNG 渲染脚本
-│   └── build-examples.py           # 一键重建 docs/showcase/ 展示截图
+│   ├── build-examples.py           # 一键重建 docs/showcase/ 展示截图
+│   └── build-skill-zip.py          # 打包 Agent Skill zip（产出 dist/，不入库）
 └── templates/
     ├── echarts-template.html       # 单图模板（4 套主题，自带可渲染示例）
     ├── gantt-template.html         # 甘特图模板（custom series + dataZoom + 拖拽）
@@ -214,7 +215,48 @@ html-visualization/
 
 ## 作为 Agent Skill 使用
 
-`SKILL.md` 是一份面向 AI Agent 的技能说明，包含按序执行的工作流：解析数据特征 → 确认喜好与输出参数 → 选型选主题 → 生成 HTML → 渲染 PNG → 视觉自检后交付。把整个目录放入 Agent 的 skills 目录即可使用。
+`SKILL.md` 是一份面向 AI Agent 的技能说明，包含按序执行的工作流：解析数据特征 → 确认喜好与输出参数 → 选型选主题 → 生成 HTML → 渲染 PNG → 视觉自检后交付。
+
+### 安装到 Agent
+
+方式一：整个仓库作为 skill（含 README、示例与展示截图）：
+
+```bash
+git clone <your-repo-url> skills/html-visualization
+```
+
+方式二：精简 skill zip（只含技能运行所需的 8 个文件，体积更小）：
+
+```bash
+# 从 GitHub Releases 下载，或本地构建：
+python scripts/build-skill-zip.py
+# → dist/html-visualization-skill.zip
+
+# 解压到 Agent 的 skills 目录（Windows 也可用资源管理器解压后放入）
+unzip dist/html-visualization-skill.zip -d skills/
+```
+
+方式二解压后的结构：
+
+```
+skills/html-visualization/
+├── SKILL.md                    # 技能入口：工作流、命令速查、常见错误
+├── LICENSE
+├── assets/echarts.min.js       # 离线 ECharts 兜底
+├── references/chart-design.md  # 选型判定表、主题令牌、14 种配方
+├── scripts/html2img.py         # HTML → PNG 渲染脚本
+└── templates/                  # 单图 / 甘特 / gallery 预览，共 3 个模板
+```
+
+### 构建 skill zip（维护者）
+
+```bash
+python scripts/build-skill-zip.py --list   # 查看将打入 zip 的文件
+python scripts/build-skill-zip.py          # 构建 dist/html-visualization-skill.zip
+python scripts/build-skill-zip.py --out release/skill-v1.zip
+```
+
+zip 只包含技能运行所需文件（SKILL.md、模板、渲染脚本、离线 ECharts、参考文档、LICENSE），采用固定时间戳打包——同一份源码多次构建产物完全一致（可复现构建），可直接附加到 GitHub Releases。
 
 ## 常见问题
 

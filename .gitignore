@@ -11,6 +11,9 @@ venv/
 # Temp files from build-examples.py
 examples/.tmp-*
 
+# Skill zip build output
+dist/
+
 # OS
 .DS_Store
 Thumbs.db
