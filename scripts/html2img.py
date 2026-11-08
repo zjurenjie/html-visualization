@@ -339,6 +339,9 @@ def convert(
             verify_dom=verify_dom,
         )
         pixel_w, pixel_h = verify_png_size(png_path, css_w, css_h, scale)
+        out_dir = os.path.dirname(os.path.abspath(out))
+        if out_dir:
+            os.makedirs(out_dir, exist_ok=True)
         shutil.copyfile(png_path, out)
     finally:
         shutil.rmtree(workdir, ignore_errors=True)

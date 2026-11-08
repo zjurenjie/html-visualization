@@ -29,7 +29,7 @@
   </tr>
 </table>
 
-> 以上截图均由 [`scripts/build-examples.py`](scripts/build-examples.py) 一键重建；可直接渲染的示例文件见 [`examples/`](examples/)。
+> 以上截图均由 [`build/build-examples.py`](build/build-examples.py) 一键重建；可直接渲染的示例文件见 [`examples/`](examples/)。
 
 ## 适合谁用
 
@@ -125,9 +125,9 @@ python scripts/html2img.py chart.html --width 1200 --height 800
 本 README 用到的全部截图可一键重建（themes-comparison 拼接图需 Pillow）：
 
 ```bash
-python scripts/build-examples.py            # 重建 docs/showcase/ 全部 5 张
-python scripts/build-examples.py --list     # 查看任务列表
-python scripts/build-examples.py --only line-trend,gallery-overview
+python build/build-examples.py            # 重建 docs/showcase/ 全部 5 张
+python build/build-examples.py --list     # 查看任务列表
+python build/build-examples.py --only line-trend,gallery-overview
 ```
 
 ## 命令行参数
@@ -234,12 +234,13 @@ html-visualization/
 │   ├── reports/                    # 评测结果：14 份模型视觉检查报告 inspect-*.json
 │   └── cases/                      # 14 组产出：cases/01-line ... cases/14-gantt
 │       └── <id>-<type>/            # 每例 chart.html + chart.png
+├── build/                          # 构建发布工具（非 skill 内容，不打包进 zip）
+│   ├── build-examples.py           # 一键重建 docs/showcase/ 展示截图
+│   └── build-skill-zip.py          # 打包 Agent Skill zip（产出 dist/，不入库）
 ├── references/
 │   └── chart-design.md             # 图型判定表、主题令牌、ECharts 配方、设计规范
 ├── scripts/
-│   ├── html2img.py                 # HTML → 指定比例 PNG 渲染脚本
-│   ├── build-examples.py           # 一键重建 docs/showcase/ 展示截图
-│   └── build-skill-zip.py          # 打包 Agent Skill zip（产出 dist/，不入库）
+│   └── html2img.py                 # HTML → 指定比例 PNG 渲染脚本
 └── templates/
     ├── echarts-template.html       # 单图模板（4 套主题，自带可渲染示例）
     ├── gantt-template.html         # 甘特图模板（custom series + dataZoom + 拖拽）
@@ -271,7 +272,7 @@ git clone <your-repo-url> skills/html-visualization
 
 ```bash
 # 从 GitHub Releases 下载，或本地构建：
-python scripts/build-skill-zip.py
+python build/build-skill-zip.py
 # → dist/html-visualization-skill.zip
 
 # 解压到 Agent 的 skills 目录（Windows 也可用资源管理器解压后放入）
@@ -293,9 +294,9 @@ skills/html-visualization/
 ### 构建 skill zip（维护者）
 
 ```bash
-python scripts/build-skill-zip.py --list   # 查看将打入 zip 的文件
-python scripts/build-skill-zip.py          # 构建 dist/html-visualization-skill.zip
-python scripts/build-skill-zip.py --out release/skill-v1.zip
+python build/build-skill-zip.py --list   # 查看将打入 zip 的文件
+python build/build-skill-zip.py          # 构建 dist/html-visualization-skill.zip
+python build/build-skill-zip.py --out release/skill-v1.zip
 ```
 
 zip 只包含技能运行所需文件（SKILL.md、模板、渲染脚本、离线 ECharts、参考文档、LICENSE），采用固定时间戳打包——同一份源码多次构建产物完全一致（可复现构建），可直接附加到 GitHub Releases。

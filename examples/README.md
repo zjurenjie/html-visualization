@@ -24,11 +24,11 @@ python scripts/html2img.py examples/gantt-schedule.html
 
 ## 一键重建 README 展示截图
 
-[`scripts/build-examples.py`](../scripts/build-examples.py) 会渲染本目录的示例，并生成 [`docs/showcase/`](../docs/showcase/) 下的全部展示截图（含 4 套主题 2×2 拼接对比图与 14 种图型总览长图）：
+[`build/build-examples.py`](../build/build-examples.py) 会渲染本目录的示例，并生成 [`docs/showcase/`](../docs/showcase/) 下的全部展示截图（含 4 套主题 2×2 拼接对比图与 14 种图型总览长图）：
 
 ```bash
 pip install pillow
-python scripts/build-examples.py
+python build/build-examples.py
 ```
 
 更多用法（`--list` / `--only` / `--browser`）见[项目 README](../README.md) 的「重建展示截图」。

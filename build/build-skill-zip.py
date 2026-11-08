@@ -6,9 +6,9 @@
 
 用法（在项目根目录执行）：
 
-    python scripts/build-skill-zip.py              # 构建 dist/html-visualization-skill.zip
-    python scripts/build-skill-zip.py --list       # 只查看将打入 zip 的文件
-    python scripts/build-skill-zip.py --out x.zip  # 指定输出路径
+    python build/build-skill-zip.py              # 构建 dist/html-visualization-skill.zip
+    python build/build-skill-zip.py --list       # 只查看将打入 zip 的文件
+    python build/build-skill-zip.py --out x.zip  # 指定输出路径
 
 zip 只包含技能运行所需文件（SKILL.md、3 个模板、渲染脚本、离线 ECharts、
 参考文档、LICENSE），不含 README、examples、docs 展示截图等项目文件。
@@ -70,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"缺少文件，无法打包：{'、'.join(missing)}", file=sys.stderr)
         return 1
 
-    out = pathlib.Path(args.out) if args.out else DEFAULT_OUT
+    out = (pathlib.Path(args.out) if args.out else DEFAULT_OUT).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
 
     # 2. 打包（ZipInfo 固定时间戳 → 可复现构建）
@@ -84,7 +84,11 @@ def main(argv: list[str] | None = None) -> int:
             total += len(data)
 
     # 3. 汇总
-    print(f"已打包 {len(SKILL_FILES)} 个文件 -> {out.relative_to(ROOT)}")
+    try:
+        out_display = out.relative_to(ROOT)
+    except ValueError:
+        out_display = out
+    print(f"已打包 {len(SKILL_FILES)} 个文件 -> {out_display}")
     print(f"原始 {total / 1024:.0f} KB -> 压缩后 {out.stat().st_size / 1024:.0f} KB")
     print(f"安装：解压到 Agent 的 skills 目录，得到 skills/{ZIP_ROOT}/SKILL.md")
     return 0

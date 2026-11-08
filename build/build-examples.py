@@ -3,10 +3,10 @@
 
 用法（在项目根目录执行）：
 
-    python scripts/build-examples.py                 # 重建全部 5 张
-    python scripts/build-examples.py --only a,b      # 只重建指定任务
-    python scripts/build-examples.py --list          # 列出全部任务
-    python scripts/build-examples.py --browser PATH  # 显式指定浏览器
+    python build/build-examples.py                 # 重建全部 5 张
+    python build/build-examples.py --only a,b      # 只重建指定任务
+    python build/build-examples.py --list          # 列出全部任务
+    python build/build-examples.py --browser PATH  # 显式指定浏览器
 
 产出（均写入 docs/showcase/，该目录是 .gitignore 中唯一放行 PNG 的位置）：
 
@@ -16,7 +16,7 @@
     gallery-overview.png  全部 14 种图型总览长图（1480x2620，scale 1）
     themes-comparison.png 4 套主题 2x2 拼接对比图（1600x900，需 Pillow）
 
-依赖：同目录 html2img.py、本仓库 assets/echarts.min.js（离线兜底）；
+依赖：scripts/html2img.py、本仓库 assets/echarts.min.js（离线兜底）；
 themes-comparison 任务额外依赖 Pillow（pip install pillow）。
 """
 
@@ -31,7 +31,7 @@ from typing import Any
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(ROOT / "scripts"))
 
 from html2img import convert  # noqa: E402
 
