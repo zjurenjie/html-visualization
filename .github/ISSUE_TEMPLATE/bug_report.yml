@@ -1,0 +1,89 @@
+name: 问题反馈
+description: 报告 skill 使用中遇到的问题（渲染失败、图表异常、打包问题等）
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量填写完整信息——复现步骤和环境信息能显著加快定位。
+
+        如果是安全漏洞，请勿公开提 issue，走 [GitHub 安全通告](https://github.com/zjurenjie/html-visualization/security/advisories/new)。
+  - type: textarea
+    id: description
+    attributes:
+      label: 发生了什么？
+      description: 清晰描述遇到的问题。
+      placeholder: 渲染出的 PNG 上下被裁切……
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      description: 你期望发生什么？
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 触发问题的最小步骤。
+      placeholder: |
+        1. 安装 skill（zip 解压或整个仓库放入 skills 目录）
+        2. 让 Agent 生成一张 16:9 折线图
+        3. 渲染：python scripts/html2img.py chart.html --ratio 16:9
+        4. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: chart-type
+    attributes:
+      label: 图表类型
+      options:
+        - 折线图 / 面积图
+        - 柱状图 / 条形图
+        - 饼图 / 环形图
+        - 散点图 / 气泡图
+        - 甘特图
+        - gallery 预览
+        - 不涉及具体图型
+  - type: dropdown
+    id: theme
+    attributes:
+      label: 主题
+      options:
+        - light
+        - business
+        - dark
+        - warm
+        - 不清楚 / 不涉及
+  - type: input
+    id: version
+    attributes:
+      label: skill 版本
+      description: zip 发布版本（如 v1.0.0）或仓库 commit。
+      placeholder: e.g. v1.0.0 或 2a0ecd7
+  - type: input
+    id: os
+    attributes:
+      label: 操作系统
+      placeholder: e.g. Windows 11、macOS 15、Ubuntu 24.04
+  - type: input
+    id: browser
+    attributes:
+      label: 浏览器
+      description: html2img 自动发现或手动指定的 Chrome / Edge / Chromium 及其版本。
+      placeholder: e.g. Chrome 142
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关报错输出
+      description: html2img / 打包脚本 / Agent 工作流的相关报错信息。
+      render: text
+  - type: textarea
+    id: html
+    attributes:
+      label: 生成的图表 HTML（可选）
+      description: 出问题的图表 HTML 全文或关键片段，便于复现。
+      render: html

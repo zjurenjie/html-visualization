@@ -1,0 +1,29 @@
+name: 功能建议
+description: 建议新增图表类型、主题、参数或工作流改进
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决的问题
+      description: 这个功能解决什么问题？当前用 skill 做什么比较困难？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望的方案
+      description: 希望如何工作？可附图表示例、参数设想或参考链接。
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 考虑过的替代方案
+      description: 你尝试过或考虑过的其他做法。
+  - type: textarea
+    id: context
+    attributes:
+      label: 补充信息
+      description: 其他有帮助的内容——链接、截图、相关 issue。

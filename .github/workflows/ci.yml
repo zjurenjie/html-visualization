@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python syntax check
+        run: python -m compileall -q scripts build eval
+
+  build-zip:
+    name: Build Skill Zip
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build twice and compare (reproducible build)
+        run: |
+          python build/build-skill-zip.py --list
+          python build/build-skill-zip.py --out dist/first.zip
+          python build/build-skill-zip.py --out dist/second.zip
+          cmp dist/first.zip dist/second.zip
+          echo "两次构建产物逐字节一致"
+      - name: Validate zip contents
+        run: |
+          python - <<'EOF'
+          import zipfile
+
+          expected = {
+              "html-visualization/SKILL.md",
+              "html-visualization/LICENSE",
+              "html-visualization/assets/echarts.min.js",
+              "html-visualization/references/chart-design.md",
+              "html-visualization/scripts/html2img.py",
+              "html-visualization/templates/echarts-template.html",
+              "html-visualization/templates/gantt-template.html",
+              "html-visualization/templates/gallery.html",
+          }
+          with zipfile.ZipFile("dist/first.zip") as zf:
+              names = set(zf.namelist())
+          assert names == expected, f"zip 内容不符\n多出: {sorted(names - expected)}\n缺失: {sorted(expected - names)}"
+          print(f"zip 内容校验通过：{len(names)} 个文件")
+          EOF
+
+  render-smoke:
+    name: Render Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+      - name: Render all 3 examples
+        run: |
+          python scripts/html2img.py examples/line-trend.html --scale 1 \
+            --browser /usr/bin/google-chrome --out dist/render/line-trend.png
+          python scripts/html2img.py examples/vertical-dark.html --ratio 9:16 --width 1080 --scale 1 \
+            --browser /usr/bin/google-chrome --out dist/render/vertical-dark.png
+          python scripts/html2img.py examples/gantt-schedule.html --scale 1 \
+            --browser /usr/bin/google-chrome --out dist/render/gantt-schedule.png
+      - name: Validate rendered PNGs
+        run: |
+          python eval/check_png.py dist/render/line-trend.png '#ffffff'
+          python eval/check_png.py dist/render/vertical-dark.png '#0f172a'
+          python eval/check_png.py dist/render/gantt-schedule.png '#ffffff'
+      - name: Upload rendered PNGs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: render-smoke-output
+          path: dist/render
+          if-no-files-found: ignore

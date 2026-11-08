@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & Attach Skill Zip
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build skill zip
+        run: python build/build-skill-zip.py
+      - name: Create GitHub release with zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Skill zip 构建自 ${GITHUB_SHA}，同一份源码多次构建产物逐字节一致。"
+            echo
+            echo "安装：解压得到 \`html-visualization/\` 目录，放入 Agent 的 skills 目录即可（\`skills/html-visualization/SKILL.md\`）。"
+            echo
+            echo "zip 内容："
+            echo
+            echo '```'
+            python build/build-skill-zip.py --list
+            echo '```'
+          } > release-notes.md
+
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${GITHUB_SHA}" \
+            --title "${GITHUB_REF_NAME}" \
+            --notes-file release-notes.md \
+            dist/html-visualization-skill.zip
