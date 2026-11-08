@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "424613ac-199a-454f-b10c-0f8c24517e6e",
+    "createdAt": "2026-11-08T06:24:49.012Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/07-donut/chart.png",
+      "sha256": "24f1de3aa33621716d6cc4e0e673f3e398dd31d0cb654443997e5dca39f5379f"
+    },
+    "requirements": {
+      "text": "这是 ECharts 环形图截图（light 主题：白底，四色 #3b82f6/#10b981/#f59e0b/#8b5cf6，1:1 比例 2160x2160）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「四端流量构成」与副标题「2026 年 10 月日均 · 单位：万次」是否完整；4) 环形四个扇区是否可见（移动 App 50.4%/移动网页 21.8%/桌面网页 17.3%/小程序 10.6%）；5) **中心总计**：环中心是否有「568」大数字与「万次/日」小字，是否位于环中心、与环无重叠；6) 外部标签（名称+百分比）是否完整、引导线清晰、无重叠；7) 有无标签溢出画布。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "8cb2605dbb28f5ef2d416b66e3671a402372f0e304b5e75bf908353b4e27dbcb"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2160,
+      "height": 2160
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题「四端流量构成」",
+        "visual_evidence": "左上角大号加粗黑体文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题「2026 年 10 月日均 · 单位：万次」",
+        "visual_evidence": "标题下方小号灰色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "环形图主体",
+        "visual_evidence": "中心空心的四色环形扇区",
+        "component_candidates": [
+          {
+            "name": "Canvas",
+            "confidence": 0.85,
+            "reason": "用于自定义绘制复杂图形如环形图"
+          },
+          {
+            "name": "Unknown",
+            "confidence": 0.7,
+            "reason": "无原生环形图组件，需自定义或第三方库"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "中心总计数字「568」",
+        "visual_evidence": "环形图中心大号黑色数字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示中心数值"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "中心单位「万次/日」",
+        "visual_evidence": "中心数字下方小号灰色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示单位说明"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "外部标签「移动 App 50.35%」",
+        "visual_evidence": "右侧蓝色扇区外的标签文字与引导线",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示标签文本"
+          },
+          {
+            "name": "Line",
+            "confidence": 0.75,
+            "reason": "用于绘制引导线"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "外部标签「桌面网页 17.26%」",
+        "visual_evidence": "左侧橙色扇区外的标签文字与引导线",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示标签文本"
+          },
+          {
+            "name": "Line",
+            "confidence": 0.75,
+            "reason": "用于绘制引导线"
+          }
+        ]
+      },
+      {
+        "id": "component-8",
+        "name": "外部标签「移动网页 21.83%」",
+        "visual_evidence": "左下绿色扇区外的标签文字与引导线",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示标签文本"
+          },
+          {
+            "name": "Line",
+            "confidence": 0.75,
+            "reason": "用于绘制引导线"
+          }
+        ]
+      },
+      {
+        "id": "component-9",
+        "name": "外部标签「小程序 10.56%」",
+        "visual_evidence": "左上紫色扇区外的标签文字与引导线",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示标签文本"
+          },
+          {
+            "name": "Line",
+            "confidence": 0.75,
+            "reason": "用于绘制引导线"
+          }
+        ]
+      },
+      {
+        "id": "component-10",
+        "name": "数据来源注释「数据来源：虚构演示数据」",
+        "visual_evidence": "左下角小号灰色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示数据来源说明"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

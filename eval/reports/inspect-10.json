@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "1b256d55-2b7a-434f-9305-581bba7611be",
+    "createdAt": "2026-11-08T06:29:50.766Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/10-linear-regression/chart.png",
+      "sha256": "08ac0fa4659aafa39fe0cc5733ad5bb8bfba4f364301d45087df11cdb76b776f"
+    },
+    "requirements": {
+      "text": "这是 ECharts 线性回归图截图（light 主题：白底，样本点蓝 #3b82f6 半透明、回归线绿 #10b981 虚线）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「广告投入 vs 销售额」与副标题「30 个城市 · 2026 年 10 月 · 单位：万元」是否完整；4) 散点约 30 个是否可见、呈正相关；5) **回归线右上端 endLabel 是否标注了公式「y = kx + b」与「R² = ...」（数值形如 y = 3.9x + 15 左右），文字是否完整、未被右侧边缘裁切**；6) 回归线是否只覆盖数据范围（从最左点到最右点）、颜色与样本点区分明显；7) X 轴名「广告投入 (万元)」与 Y 轴名「销售额 (万元)」是否完整；8) 有无重叠/溢出。JSON 输出各项 pass/fail、endLabel 的具体文字内容与问题。",
+      "sha256": "e7559eaa3f381d1df3012d5782dd2f81d94430335772323c6d814b155034b997"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "图表标题",
+        "visual_evidence": "广告投入 vs 销售额",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示主标题文本"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "图表副标题",
+        "visual_evidence": "30 个城市 · 2026 年 10 月 · 单位：万元",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "Y 轴标签",
+        "visual_evidence": "销售额 (万元)",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示 Y 轴名称"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "X 轴标签",
+        "visual_evidence": "广告投入 (万元)",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示 X 轴名称"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "回归线 endLabel",
+        "visual_evidence": "y = 4.62x + 9.26 R² = 0.997",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示回归方程与拟合优度文本"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "数据来源说明",
+        "visual_evidence": "数据来源：虚构演示数据 · 虚线为最小二乘拟合",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示底部注释文本"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "散点图区域",
+        "visual_evidence": "约 30 个蓝色半透明圆点，呈正相关分布",
+        "component_candidates": [
+          {
+            "name": "Canvas",
+            "confidence": 0.75,
+            "reason": "用于绘制自定义散点与回归线图形"
+          },
+          {
+            "name": "Chart",
+            "confidence": 0.6,
+            "reason": "若使用图表库组件，可能封装了散点图"
+          }
+        ]
+      },
+      {
+        "id": "component-8",
+        "name": "回归线",
+        "visual_evidence": "绿色虚线，从最左点延伸至最右点",
+        "component_candidates": [
+          {
+            "name": "Canvas",
+            "confidence": 0.75,
+            "reason": "用于绘制自定义虚线回归线"
+          },
+          {
+            "name": "Line",
+            "confidence": 0.65,
+            "reason": "若支持虚线样式，可用于绘制回归线"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>广告投入 vs 销售额</title>
+
+<!-- ① 图表库：CDN 优先，本地 assets/echarts.min.js 兜底（离线可用）。
+     本文件位于 eval/cases/10-linear-regression/，距 assets/ 三级，兜底相对路径已修正。 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+  if (!window.echarts) {
+    document.write('<script src="../../../assets/echarts.min.js"><\/script>');
+  }
+</script>
+
+<style>
+  :root,
+  body[data-theme="light"] {
+    --bg: #ffffff;
+    --fg: #1f2329;
+    --muted: #86909c;
+    --grid: #e5e6eb;
+    --accent: #3b82f6;
+    --s1: #3b82f6; --s2: #10b981; --s3: #f59e0b;
+    --s4: #8b5cf6; --s5: #ef4444; --s6: #14b8a6;
+  }
+  body[data-theme="business"] {
+    --bg: #fffdf8;
+    --fg: #1f2937;
+    --muted: #6b7280;
+    --grid: #e7e0d4;
+    --accent: #1d4ed8;
+    --s1: #1d4ed8; --s2: #b8860b; --s3: #64748b;
+    --s4: #0f766e; --s5: #9333ea; --s6: #78716c;
+  }
+  body[data-theme="dark"] {
+    --bg: #0f172a;
+    --fg: #f1f5f9;
+    --muted: #94a3b8;
+    --grid: #1e293b;
+    --accent: #38bdf8;
+    --s1: #38bdf8; --s2: #34d399; --s3: #a78bfa;
+    --s4: #f472b6; --s5: #fbbf24; --s6: #22d3ee;
+  }
+  body[data-theme="warm"] {
+    --bg: #fffaf5;
+    --fg: #292524;
+    --muted: #78716c;
+    --grid: #f0e0d2;
+    --accent: #f97316;
+    --s1: #f97316; --s2: #e11d48; --s3: #f59e0b;
+    --s4: #be123c; --s5: #ea580c; --s6: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: calc(100vw / 75); }
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg); color: var(--fg);
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+                 "Source Han Sans SC", sans-serif;
+  }
+  .stage {
+    display: flex; flex-direction: column;
+    width: 100vw; height: 100vh;
+    padding: 2.5rem 3rem 2rem;
+    background: var(--bg);
+  }
+  .head { flex: 0 0 auto; }
+  .title { font-size: 1.75rem; font-weight: 700; letter-spacing: 0.02em; margin: 0; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin: 0.5rem 0 0; }
+  .chart { flex: 1 1 0; min-height: 0; }
+  .foot { flex: 0 0 auto; margin-top: 1rem; font-size: 0.8rem; color: var(--muted); }
+  #error { display: none; margin: auto; font-size: 1.2rem; color: #ef4444; }
+</style>
+</head>
+
+<!-- ③ 主题：light -->
+<body data-theme="light">
+<div class="stage">
+  <div class="head">
+    <h1 class="title">广告投入 vs 销售额</h1>
+    <p class="subtitle">30 个城市 · 2026 年 10 月 · 单位：万元</p>
+  </div>
+  <div id="chart" class="chart"></div>
+  <div id="error">ECharts 未加载成功：请检查网络或本地 echarts.min.js 兜底路径</div>
+  <div class="foot">数据来源：虚构演示数据 · 虚线为最小二乘拟合</div>
+</div>
+
+<script>
+  const C = {
+    fg: cssVar('--fg'),
+    muted: cssVar('--muted'),
+    grid: cssVar('--grid'),
+    accent: cssVar('--accent'),
+    bg: cssVar('--bg'),
+    palette: [1, 2, 3, 4, 5, 6].map((i) => cssVar('--s' + i)),
+  };
+  function fs(n) { return Math.max(9, Math.round(n * window.innerWidth / 1200)); }
+  function cssVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
+
+  // 30 个样本：[广告投入 x, 销售额 y]（万元），线性正相关
+  const data = [
+    [12.5, 68], [14.2, 76], [15.8, 82], [16.1, 85], [17.5, 91],
+    [18.3, 95], [19.6, 98], [20.4, 105], [21.8, 112], [22.5, 109],
+    [23.9, 118], [24.6, 124], [25.8, 131], [26.4, 127], [27.9, 138],
+    [28.7, 142], [29.5, 146], [30.8, 151], [31.6, 158], [32.4, 154],
+    [33.9, 164], [34.7, 171], [35.5, 168], [36.8, 177], [37.6, 183],
+    [38.9, 188], [39.7, 192], [41.2, 201], [42.8, 209], [45.5, 224],
+  ];
+  // 最小二乘：斜率 / 截距 / R²
+  const n = data.length;
+  let sx = 0, sy = 0, sxx = 0, sxy = 0;
+  data.forEach(([x, y]) => { sx += x; sy += y; sxx += x * x; sxy += x * y; });
+  const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx);
+  const intercept = (sy - slope * sx) / n;
+  const meanY = sy / n;
+  let ssRes = 0, ssTot = 0;
+  data.forEach(([x, y]) => {
+    ssRes += (y - (slope * x + intercept)) ** 2;
+    ssTot += (y - meanY) ** 2;
+  });
+  const r2 = 1 - ssRes / ssTot;
+  // 拟合线只画 [xMin, xMax] 两点
+  const xMin = Math.min(...data.map((d) => d[0]));
+  const xMax = Math.max(...data.map((d) => d[0]));
+  const line = [
+    [xMin, slope * xMin + intercept],
+    [xMax, slope * xMax + intercept],
+  ];
+
+  const option = {
+    animation: false,
+    tooltip: { show: false },
+    color: C.palette,
+    grid: { left: 8, right: 150, top: 32, bottom: 46, containLabel: true },
+    xAxis: {
+      type: 'value', scale: true, name: '广告投入 (万元)',
+      nameLocation: 'middle', nameGap: 30,
+      nameTextStyle: { color: C.muted, fontSize: fs(12) },
+      splitLine: { show: false },
+      axisLine: { show: true, lineStyle: { color: C.grid } },
+      axisLabel: { color: C.muted, fontSize: fs(11) },
+    },
+    yAxis: {
+      type: 'value', scale: true, name: '销售额 (万元)',
+      nameTextStyle: { color: C.muted, fontSize: fs(12) },
+      splitLine: { show: false },
+      axisLine: { show: true, lineStyle: { color: C.grid } },
+      axisLabel: { color: C.muted, fontSize: fs(11) },
+    },
+    series: [
+      { name: '样本', type: 'scatter', data: data, symbolSize: fs(7),
+        itemStyle: { color: C.palette[0], opacity: 0.55 } },
+      { name: '回归线', type: 'line', data: line, symbol: 'none',
+        lineStyle: { width: 2.5, color: C.palette[1], type: 'dashed' },
+        endLabel: { show: true, distance: fs(10), color: C.fg, fontSize: fs(12),
+          formatter: 'y = ' + slope.toFixed(2) + 'x + ' + intercept.toFixed(2)
+            + '  R² = ' + r2.toFixed(3) } },
+    ],
+  };
+
+  const el = document.getElementById('chart');
+  if (typeof echarts === 'undefined') {
+    document.getElementById('error').style.display = 'block';
+  } else {
+    echarts.init(el, null, { renderer: 'canvas' }).setOption(option);
+  }
+</script>
+</body>
+</html>

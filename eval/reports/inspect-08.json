@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "be082098-a566-4633-8554-d63b698f6c17",
+    "createdAt": "2026-11-08T06:26:18.874Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/08-scatter/chart.png",
+      "sha256": "841a0e8eccb80b4b0946bfbec0b2b2d4214d31e2d54d2fa806d1f730b6b1eb1c"
+    },
+    "requirements": {
+      "text": "这是 ECharts 散点图截图（dark 主题：深蓝底 #0f172a、浅灰文字、亮蓝点 #38bdf8）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「30 款车型马力 vs 百公里加速」与副标题「最大马力 (PS) · 0-100km/h 加速 (s) · 2026 年在售车型」是否完整（深色底上文字是否清晰）；4) X 轴是否有轴名「最大马力 (PS)」、刻度是否从非 0 开始（scale）；5) Y 轴是否有轴名「0-100km/h 加速 (s)」；6) 散点数量是否约 30 个、颜色是否为亮蓝、深色底上对比度是否足够；7) 点分布是否呈现马力越大加速越短（左上到右下）的负相关趋势；8) 有无文字溢出/裁切/重叠。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "0232dfc0a1ded4b644e3df43a612a28e1fbaaeca3b4ed4b161cc2f5228e2fa73"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题文本",
+        "visual_evidence": "顶部大号白色文字“30 款车型马力 vs 百公里加速”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本，支持字体、颜色、大小设置"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题文本",
+        "visual_evidence": "标题下方小号浅灰色文字“最大马力 (PS) · 0-100km/h 加速 (s) · 2026 年在售车型”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本，支持颜色和字号调整"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "散点图图表区",
+        "visual_evidence": "深蓝背景上分布约30个亮蓝色圆点，形成从左上到右下的趋势",
+        "component_candidates": [
+          {
+            "name": "Canvas",
+            "confidence": 0.85,
+            "reason": "适用于自定义绘制散点图，支持坐标系、点绘制、网格线"
+          },
+          {
+            "name": "Chart",
+            "confidence": 0.7,
+            "reason": "若系统提供图表组件，可封装散点图，但需确认是否支持自定义样式"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "X轴标签",
+        "visual_evidence": "底部水平轴标注“最大马力 (PS)”及刻度 100, 150, ..., 450",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示轴名称和刻度值，可配合布局组件排列"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "Y轴标签",
+        "visual_evidence": "左侧垂直轴标注“0-100km/h 加速 (s)”及刻度 3, 4, ..., 10",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示轴名称和刻度值，支持旋转或垂直排版"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "网格线",
+        "visual_evidence": "图表区域内浅灰色虚线构成的网格",
+        "component_candidates": [
+          {
+            "name": "Shape",
+            "confidence": 0.75,
+            "reason": "可绘制直线实现网格线，支持虚线样式和颜色"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "数据来源文本",
+        "visual_evidence": "左下角小号浅灰色文字“数据来源：虚构演示数据”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示底部注释，支持小字号和浅色文本"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "050d4e1a-61a8-4f63-a7c2-1076cd43fdff",
+    "createdAt": "2026-11-08T06:28:02.652Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/09-distribution-scatter/chart.png",
+      "sha256": "dedfa9207f75a61e74c743845aa4ac27a4af99a68f7f817ebd0b3767ac07e230"
+    },
+    "requirements": {
+      "text": "这是 ECharts 分布散点图截图（dark 主题：深蓝底 #0f172a，600 点 4 类着色：谷物 #38bdf8/蔬果 #34d399/肉蛋 #a78bfa/乳品 #f472b6）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「食品营养成分分布」与副标题是否完整；4) 顶部类别图例四项（谷物/蔬果/肉蛋/乳品）是否齐全、颜色是否与点云一致；5) 是否有四个明显分离的点云簇（约各 150 点，共 600 点）、深色底上对比度是否足够；6) X 轴名「蛋白质 (g/100g)」与 Y 轴名「钠 (mg/100g)」是否完整；7) 点是否有亮度层次（colorLightness）；8) 图例/轴名与点云有无遮挡重叠。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "5dbeae47914f510323a3def9a114a8058199568f9a71b6882bc0aa916c5d7da8"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题：食品营养成分分布",
+        "visual_evidence": "左上角大号白色文字“食品营养成分分布”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本，支持字体、颜色、大小设置"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题：600 款食品 · 蛋白质 (g/100g) × 钠 (mg/100g) · 按类别着色",
+        "visual_evidence": "标题下方小号浅灰色文字，描述数据维度和着色方式",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本，通常字号较小、颜色较浅"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "图例：谷物/蔬果/肉蛋/乳品",
+        "visual_evidence": "图表右上角四个彩色方块及对应中文标签，颜色与点云一致",
+        "component_candidates": [
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "用于水平排列图例项，每个项可由 Icon + Text 组合"
+          },
+          {
+            "name": "Column",
+            "confidence": 0.7,
+            "reason": "若图例垂直排列可选，但截图中为水平排列"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "散点图区域",
+        "visual_evidence": "深色背景上分布着约600个彩色圆点，形成四个明显簇群",
+        "component_candidates": [
+          {
+            "name": "Canvas",
+            "confidence": 0.9,
+            "reason": "适用于自定义绘制复杂图形如散点图，支持坐标系和颜色控制"
+          },
+          {
+            "name": "Chart",
+            "confidence": 0.75,
+            "reason": "若使用图表库组件，可能封装了散点图绘制能力"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "X轴：蛋白质 (g/100g)",
+        "visual_evidence": "图表底部水平轴标签，显示“蛋白质 (g/100g)”及刻度0-25",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示轴标签文本"
+          },
+          {
+            "name": "Row",
+            "confidence": 0.7,
+            "reason": "可组合刻度线与标签，但通常由图表组件内部管理"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "Y轴：钠 (mg/100g)",
+        "visual_evidence": "图表左侧垂直轴标签，显示“钠 (mg/100g)”及刻度0-700",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示轴标签文本"
+          },
+          {
+            "name": "Column",
+            "confidence": 0.7,
+            "reason": "可组合刻度线与标签，但通常由图表组件内部管理"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "数据来源注释",
+        "visual_evidence": "左下角小号浅灰色文字“数据来源：虚构演示数据 · 类别图例见图表上方”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示底部注释文本，通常字号小、颜色浅"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "2e7c1962-b54e-4e52-b7ae-2dc46adc26fe",
+    "createdAt": "2026-11-08T06:21:13.420Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/05-stacked-bar/chart.png",
+      "sha256": "4c06db7a215a5765f38726a1124fb791a986357af0e83174396f7e12c5efe870"
+    },
+    "requirements": {
+      "text": "这是 ECharts 堆叠柱状图截图（business 主题：米白底 #fffdf8，三色 #1d4ed8 蓝/#b8860b 金/#64748b 灰蓝）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「三渠道季度销售额构成」与副标题「2026 年各季度 · 单位：百万元」是否完整；4) 右上图例三项（线上电商/线下门店/分销渠道）是否与柱块颜色一致；5) 四组堆叠柱（Q1-Q4）是否等宽均匀、堆叠高度逐季递增（Q4 最高 178）；6) 柱内白色数值标签（58/42/31 等）是否清晰可读、无重叠；7) 最上层柱顶是否圆角；8) 有无溢出/裁切。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "91d2128c020a1e73e3318a76ae2d8f0ceb4a5d589f0a7b205e2bd867f983a783"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题「三渠道季度销售额构成」",
+        "visual_evidence": "图表顶部大号深色字体标题",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题「2026 年各季度 · 单位：百万元」",
+        "visual_evidence": "标题下方小号灰色字体副标题",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "图例（线上电商/线下门店/分销渠道）",
+        "visual_evidence": "右上角三个带颜色方块和对应文字标签",
+        "component_candidates": [
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "用于水平排列图例项"
+          },
+          {
+            "name": "Column",
+            "confidence": 0.8,
+            "reason": "每个图例项可由颜色块和文字垂直排列组成"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示图例文字"
+          },
+          {
+            "name": "Rect",
+            "confidence": 0.85,
+            "reason": "用于绘制颜色方块"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "Y 轴刻度（0, 30, 60, 90, 120, 150, 180）",
+        "visual_evidence": "左侧垂直排列的数值刻度",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示刻度数值"
+          },
+          {
+            "name": "Column",
+            "confidence": 0.8,
+            "reason": "用于垂直排列刻度标签"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "X 轴标签（Q1, Q2, Q3, Q4）",
+        "visual_evidence": "底部水平排列的季度标签",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示季度名称"
+          },
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "用于水平排列季度标签"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "堆叠柱状图主体",
+        "visual_evidence": "四组由三种颜色块堆叠而成的柱形图",
+        "component_candidates": [
+          {
+            "name": "Column",
+            "confidence": 0.8,
+            "reason": "用于垂直堆叠各渠道数据块"
+          },
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "用于水平排列四个季度的柱子"
+          },
+          {
+            "name": "Rect",
+            "confidence": 0.9,
+            "reason": "用于绘制每个数据块"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于在每个数据块内显示数值标签"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "数据标签（58, 42, 31 等）",
+        "visual_evidence": "每个堆叠块内部的白色数值",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示数据块内的数值"
+          }
+        ]
+      },
+      {
+        "id": "component-8",
+        "name": "底部注释「数据来源：虚构演示数据」",
+        "visual_evidence": "图表左下角小号灰色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示数据来源说明"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

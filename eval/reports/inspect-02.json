@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "a3053415-f6f7-43a4-ba1e-b1c0ac00ab29",
+    "createdAt": "2026-11-08T06:16:51.077Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/02-stacked-line/chart.png",
+      "sha256": "5d5aecd4f340b6e50ab9d794c69509e4bff9dc544fae64ba68b12e9b5dab865a"
+    },
+    "requirements": {
+      "text": "这是 ECharts 堆叠折线图截图（business 主题：米白底 #fffdf8、调色盘 #1d4ed8/#b8860b/#64748b/#0f766e）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「四大渠道月度访问量累计」与副标题是否完整；4) 顶部图例四项（自然搜索/直接访问/社交媒体/外部引荐）是否齐全且不与折线重叠；5) 6 个月份轴标签是否完整；6) 四条堆叠折线是否清晰可辨、堆叠趋势递增；7) 有无文字溢出/裁切/元素重叠。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "53a3f13bcd6b2ac516914f226e1553ece1b59d1c66862b736280ed39d58c27c4"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题",
+        "visual_evidence": "四大渠道月度访问量累计",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题",
+        "visual_evidence": "2026 年 1 月 - 6 月 · 单位：万次",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "图例",
+        "visual_evidence": "自然搜索、直接访问、社交媒体、外部引荐 四项带颜色标记的图例项",
+        "component_candidates": [
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "用于水平排列图例项"
+          },
+          {
+            "name": "Column",
+            "confidence": 0.75,
+            "reason": "可嵌套用于图例项内部结构"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示图例文本"
+          },
+          {
+            "name": "Circle",
+            "confidence": 0.8,
+            "reason": "用于显示图例颜色标记"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "X轴标签",
+        "visual_evidence": "1月、2月、3月、4月、5月、6月",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示轴标签文本"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "Y轴刻度",
+        "visual_evidence": "0、100、200、300、400、500",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示轴刻度文本"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "折线图区域",
+        "visual_evidence": "四条不同颜色的折线，每条线有数据点标记",
+        "component_candidates": [
+          {
+            "name": "Canvas",
+            "confidence": 0.85,
+            "reason": "用于绘制自定义图形如折线图"
+          },
+          {
+            "name": "Line",
+            "confidence": 0.75,
+            "reason": "可用于绘制单条线段"
+          },
+          {
+            "name": "Circle",
+            "confidence": 0.7,
+            "reason": "可用于绘制数据点"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "数据来源注释",
+        "visual_evidence": "数据来源：虚构演示数据",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示底部注释文本"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

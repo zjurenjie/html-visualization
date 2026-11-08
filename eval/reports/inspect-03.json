@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "96ce5735-b6cb-41bc-aa91-f3df45dc7baa",
+    "createdAt": "2026-11-08T06:18:17.860Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/03-bar/chart.png",
+      "sha256": "8ff870e534d8f59ea6cf42fff9bfd1708e6578c332ce76bf00cc8211cfc8fec1"
+    },
+    "requirements": {
+      "text": "这是 ECharts 柱状图截图（light 主题：白底、强调色 #3b82f6）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「六大区季度销售额对比（2026 Q3）」与副标题「2026 年第三季度 · 单位：百万元」是否完整无裁切；4) 六个区域名（华东/华南/华北/西南/华中/东北）轴标签是否完整；5) 六根柱子是否等宽均匀、柱顶数值标签（86.4/72.1/65.8/41.2/47.6/28.3）是否完整不重叠不裁切；6) 柱色是否为蓝色 #3b82f6 且顶部圆角；7) 有无其他布局问题。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "2ec5795afe095dcff395b8958c09c57e1cd3f9e3152ba80141463895cd25a13a"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题文本",
+        "visual_evidence": "六大区季度销售额对比（2026 Q3）",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本，支持字体、颜色、大小设置"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题文本",
+        "visual_evidence": "2026 年第三季度 · 单位：百万元",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本，通常字号较小、颜色较浅"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "柱状图图表区",
+        "visual_evidence": "包含六根蓝色柱子、Y轴刻度线、X轴区域标签的图表区域",
+        "component_candidates": [
+          {
+            "name": "Chart",
+            "confidence": 0.7,
+            "reason": "ArkUI 提供的图表组件，支持柱状图绘制，可配置颜色、标签、轴线"
+          },
+          {
+            "name": "Stack",
+            "confidence": 0.6,
+            "reason": "若无内置图表组件，可用 Stack + Rect + Text 组合实现自定义柱状图"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "X轴区域标签",
+        "visual_evidence": "华东、华南、华北、西南、华中、东北",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示分类轴标签，通常与柱子对齐"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "柱顶数值标签",
+        "visual_evidence": "86.4, 72.1, 65.8, 41.2, 47.6, 28.3",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示柱子顶部的数值，需动态定位"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "数据来源文本",
+        "visual_evidence": "数据来源：虚构演示数据",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示图表底部注释，通常字号小、颜色浅"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

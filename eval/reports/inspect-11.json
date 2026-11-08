@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "3a66c7ef-7958-46d6-8950-8f88f2f46cc9",
+    "createdAt": "2026-11-08T06:31:41.219Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/11-radar/chart.png",
+      "sha256": "774d034053fe497999e08cb147fbb16845fd558e444af5c6f5cf369d30c5e1c0"
+    },
+    "requirements": {
+      "text": "这是 ECharts 雷达图截图（dark 主题：深蓝底 #0f172a，产品 A 亮蓝 #38bdf8、产品 B 绿 #34d399，1:1 比例 2160x2160）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「两款产品六维能力对比」与副标题「评测评分 · 满分 100 分」是否完整；4) 雷达外圈 6 个维度名（性能/易用性/功能完整度/稳定性/生态扩展/性价比）是否完整显示、无裁切（注意「功能完整度」5 字）；5) 两个六边形（产品 A 92/74/88/85/68/76、产品 B 78/90/72/80/86/88）是否叠加可辨、半透明填充是否相互区分；6) 底部图例「产品 A / 产品 B」是否齐全且颜色与多边形一致；7) 深色底上网格线/维度名对比度是否足够；8) 有无重叠/溢出。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "bccd00f9fd769e217ba4bbd14161354e2ff7f1bff1e6fc3f00d129b46849f6dc"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2160,
+      "height": 2160
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题：两款产品六维能力对比",
+        "visual_evidence": "左上角白色大字标题，清晰显示“两款产品六维能力对比”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本，支持字体、颜色、大小设置，适配深色背景"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题：评测评分 · 满分 100 分",
+        "visual_evidence": "标题下方浅灰色小字副标题，内容完整",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本，支持不同颜色和字号以区分主次"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "雷达图主体",
+        "visual_evidence": "中心六边形雷达图，包含两个叠加的多边形（蓝色与绿色），有网格线和六个维度标签",
+        "component_candidates": [
+          {
+            "name": "CustomComponent",
+            "confidence": 0.7,
+            "reason": "ArkUI 无原生雷达图组件，需自定义绘制或封装第三方图表库"
+          },
+          {
+            "name": "Canvas",
+            "confidence": 0.6,
+            "reason": "可通过 Canvas 手动绘制雷达图路径、填充、网格和标签"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "维度标签：性能、易用性、功能完整度、稳定性、生态扩展、性价比",
+        "visual_evidence": "围绕雷达图外圈分布的六个中文标签，均完整显示，无裁切",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "每个维度标签为独立文本，可定位在极坐标位置，支持旋转和对齐"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "图例：产品 A / 产品 B",
+        "visual_evidence": "图表下方两个彩色方块加文字标签，颜色与雷达图多边形一致",
+        "component_candidates": [
+          {
+            "name": "Row",
+            "confidence": 0.8,
+            "reason": "用于水平排列图例项，每个项由 Icon + Text 组成"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示图例文字，配合颜色方块使用"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "数据来源注释：数据来源：虚构演示数据",
+        "visual_evidence": "左下角小号浅灰色文字，内容完整",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示底部辅助说明，字号较小，颜色较浅以弱化视觉权重"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

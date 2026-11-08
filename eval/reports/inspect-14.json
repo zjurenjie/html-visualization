@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "a5c7c5fe-d8f9-43af-a007-fd7523f5cf64",
+    "createdAt": "2026-11-08T06:38:31.967Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/14-gantt/chart.png",
+      "sha256": "52fd6f3475a98d4a348cc50a58ed469ada478b2744825177a02f6ba6cc97b89b"
+    },
+    "requirements": {
+      "text": "这是 ECharts 甘特图截图（light 主题：白底，custom series，状态色：计划中紫 #8b5cf6/进行中蓝 #3b82f6/已完成绿 #10b981/有风险红 #ef4444）。请逐项检查：1) 图表区是否空白（custom series 是否渲染出条形）；2) 中文是否有方块字/乱码；3) 标题「产品 v2.0 发布排期」与副标题「2026-11-02 - 2026-12-18 · 按小组分道 · 状态着色」是否完整；4) 状态图例四项（计划中/进行中/已完成/有风险）是否齐全、颜色与任务条一致；5) 四条车道（设计组/开发组/测试组/发布组）是否自上而下排布、左侧车道名与小字（UI / 交互 等）是否完整；6) 9 个任务条是否可见、条内任务名（需求评审/视觉设计/设计走查/功能开发/性能优化/功能测试/回归测试/灰度发布/全量上线）是否显示、同车道是否有时间重叠；7) 顶部时间轴标签（月/日格式）是否清晰不重叠；8) 底部 dataZoom 滑块是否可见；9) 部分完成的任务条是否呈现浅色+实色分层（视觉设计 70%、功能开发 50%）。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "3881baf0eae924f2bca7a72b6f5d4ba31374dae8fe375771a93f196c8d9dc0ac"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题「产品 v2.0 发布排期」",
+        "visual_evidence": "截图顶部大号加粗文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题「2026-11-02 - 2026-12-18 · 按小组分道 · 状态着色」",
+        "visual_evidence": "标题下方小号灰色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "状态图例（计划中/进行中/已完成/有风险）",
+        "visual_evidence": "副标题下方四个带颜色方块和文字的图例项",
+        "component_candidates": [
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "水平排列图例项"
+          },
+          {
+            "name": "Column",
+            "confidence": 0.8,
+            "reason": "每个图例项内垂直排列颜色块和文字"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "显示图例文字"
+          },
+          {
+            "name": "Rect",
+            "confidence": 0.85,
+            "reason": "显示颜色块"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "车道列表（设计组/开发组/测试组/发布组）",
+        "visual_evidence": "图表左侧垂直排列的四组车道名及小字",
+        "component_candidates": [
+          {
+            "name": "Column",
+            "confidence": 0.9,
+            "reason": "垂直排列各车道"
+          },
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "每车道内水平排列图标、组名和小字"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "显示组名和小字"
+          },
+          {
+            "name": "Rect",
+            "confidence": 0.8,
+            "reason": "显示车道前的蓝色方块图标"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "时间轴标签（11/8, 11/15, ...）",
+        "visual_evidence": "图表顶部水平排列的日期标签",
+        "component_candidates": [
+          {
+            "name": "Row",
+            "confidence": 0.85,
+            "reason": "水平排列日期标签"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "显示日期文本"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "任务条（如「需求评审」「视觉设计」等）",
+        "visual_evidence": "图表主体区域的彩色矩形条，部分有浅色分层",
+        "component_candidates": [
+          {
+            "name": "Rect",
+            "confidence": 0.85,
+            "reason": "绘制彩色矩形条"
+          },
+          {
+            "name": "Column",
+            "confidence": 0.8,
+            "reason": "部分任务条内包含文字和分层颜色"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "显示任务名称"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "底部 dataZoom 滑块",
+        "visual_evidence": "图表底部贯穿的浅蓝色滑块条",
+        "component_candidates": [
+          {
+            "name": "Slider",
+            "confidence": 0.85,
+            "reason": "用于时间轴范围选择"
+          },
+          {
+            "name": "Rect",
+            "confidence": 0.8,
+            "reason": "滑块背景"
+          }
+        ]
+      },
+      {
+        "id": "component-8",
+        "name": "右上角工具箱图标",
+        "visual_evidence": "右上角铅笔形状图标",
+        "component_candidates": [
+          {
+            "name": "Button",
+            "confidence": 0.85,
+            "reason": "可点击的工具按钮"
+          },
+          {
+            "name": "Image",
+            "confidence": 0.8,
+            "reason": "显示铅笔图标"
+          }
+        ]
+      },
+      {
+        "id": "component-9",
+        "name": "底部数据来源说明",
+        "visual_evidence": "截图最底部小号灰色说明文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "显示静态说明文本"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

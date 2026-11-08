@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>两款产品六维能力对比</title>
+
+<!-- ① 图表库：CDN 优先，本地 assets/echarts.min.js 兜底（离线可用）。
+     本文件位于 eval/cases/11-radar/，距 assets/ 三级，兜底相对路径已修正。 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+  if (!window.echarts) {
+    document.write('<script src="../../../assets/echarts.min.js"><\/script>');
+  }
+</script>
+
+<style>
+  :root,
+  body[data-theme="light"] {
+    --bg: #ffffff;
+    --fg: #1f2329;
+    --muted: #86909c;
+    --grid: #e5e6eb;
+    --accent: #3b82f6;
+    --s1: #3b82f6; --s2: #10b981; --s3: #f59e0b;
+    --s4: #8b5cf6; --s5: #ef4444; --s6: #14b8a6;
+  }
+  body[data-theme="business"] {
+    --bg: #fffdf8;
+    --fg: #1f2937;
+    --muted: #6b7280;
+    --grid: #e7e0d4;
+    --accent: #1d4ed8;
+    --s1: #1d4ed8; --s2: #b8860b; --s3: #64748b;
+    --s4: #0f766e; --s5: #9333ea; --s6: #78716c;
+  }
+  body[data-theme="dark"] {
+    --bg: #0f172a;
+    --fg: #f1f5f9;
+    --muted: #94a3b8;
+    --grid: #1e293b;
+    --accent: #38bdf8;
+    --s1: #38bdf8; --s2: #34d399; --s3: #a78bfa;
+    --s4: #f472b6; --s5: #fbbf24; --s6: #22d3ee;
+  }
+  body[data-theme="warm"] {
+    --bg: #fffaf5;
+    --fg: #292524;
+    --muted: #78716c;
+    --grid: #f0e0d2;
+    --accent: #f97316;
+    --s1: #f97316; --s2: #e11d48; --s3: #f59e0b;
+    --s4: #be123c; --s5: #ea580c; --s6: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: calc(100vw / 75); }
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg); color: var(--fg);
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+                 "Source Han Sans SC", sans-serif;
+  }
+  .stage {
+    display: flex; flex-direction: column;
+    width: 100vw; height: 100vh;
+    padding: 2.5rem 3rem 2rem;
+    background: var(--bg);
+  }
+  .head { flex: 0 0 auto; }
+  .title { font-size: 1.75rem; font-weight: 700; letter-spacing: 0.02em; margin: 0; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin: 0.5rem 0 0; }
+  .chart { flex: 1 1 0; min-height: 0; }
+  .foot { flex: 0 0 auto; margin-top: 1rem; font-size: 0.8rem; color: var(--muted); }
+  #error { display: none; margin: auto; font-size: 1.2rem; color: #ef4444; }
+</style>
+</head>
+
+<!-- ③ 主题：dark -->
+<body data-theme="dark">
+<div class="stage">
+  <div class="head">
+    <h1 class="title">两款产品六维能力对比</h1>
+    <p class="subtitle">评测评分 · 满分 100 分</p>
+  </div>
+  <div id="chart" class="chart"></div>
+  <div id="error">ECharts 未加载成功：请检查网络或本地 echarts.min.js 兜底路径</div>
+  <div class="foot">数据来源：虚构演示数据</div>
+</div>
+
+<script>
+  const C = {
+    fg: cssVar('--fg'),
+    muted: cssVar('--muted'),
+    grid: cssVar('--grid'),
+    accent: cssVar('--accent'),
+    bg: cssVar('--bg'),
+    palette: [1, 2, 3, 4, 5, 6].map((i) => cssVar('--s' + i)),
+  };
+  function fs(n) { return Math.max(9, Math.round(n * window.innerWidth / 1200)); }
+  function cssVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
+
+  const option = {
+    animation: false,
+    tooltip: { show: false },
+    color: C.palette,
+    legend: {
+      bottom: 0, left: 'center', itemWidth: 10, itemHeight: 10,
+      textStyle: { color: C.muted, fontSize: fs(12) },
+    },
+    radar: {
+      indicator: [
+        { name: '性能', max: 100 },
+        { name: '易用性', max: 100 },
+        { name: '功能完整度', max: 100 },
+        { name: '稳定性', max: 100 },
+        { name: '生态扩展', max: 100 },
+        { name: '性价比', max: 100 },
+      ],
+      radius: '62%',
+      center: ['50%', '50%'],
+      axisName: { color: C.fg, fontSize: fs(13) },
+      splitLine: { lineStyle: { color: C.grid } },
+      splitArea: { show: false },
+      axisLine: { lineStyle: { color: C.grid } },
+    },
+    series: [{
+      type: 'radar',
+      data: [
+        { value: [92, 74, 88, 85, 68, 76], name: '产品 A',
+          areaStyle: { opacity: 0.25 },
+          lineStyle: { color: C.palette[0], width: 2 },
+          itemStyle: { color: C.palette[0] } },
+        { value: [78, 90, 72, 80, 86, 88], name: '产品 B',
+          areaStyle: { opacity: 0.25 },
+          lineStyle: { color: C.palette[1], width: 2 },
+          itemStyle: { color: C.palette[1] } },
+      ],
+    }],
+  };
+
+  const el = document.getElementById('chart');
+  if (typeof echarts === 'undefined') {
+    document.getElementById('error').style.display = 'block';
+  } else {
+    echarts.init(el, null, { renderer: 'canvas' }).setOption(option);
+  }
+</script>
+</body>
+</html>

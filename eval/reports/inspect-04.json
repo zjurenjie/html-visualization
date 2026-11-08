@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "150f86b6-5628-4d82-9bbf-02eee964ea65",
+    "createdAt": "2026-11-08T06:19:36.914Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/04-horizontal-bar/chart.png",
+      "sha256": "a1ce25cf0a531301b28a4db991cf124e0fc150d06a5f81d859c33d3e641e5235"
+    },
+    "requirements": {
+      "text": "这是 ECharts 横向条形图截图（warm 主题：暖白底 #fffaf5、橙色 #f97316，4:3 比例 2160x1620）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「10 大编程语言流行度排行」与副标题是否完整；4) 左侧 10 个语言名（Python/JavaScript/Java/TypeScript/Go/C++/C#/Rust/Kotlin/Swift）是否完整显示、TypeScript 是否被截断；5) 条形是否按值降序（Python 92.5 最长在最上方、Swift 42.1 最短在最下方）；6) 条形右侧数值标签（92.5/88.3/76.4/74.8/68.2/65.7/61.3/58.9/47.6/42.1）是否完整、无溢出画布右缘；7) 条形颜色是否为橙色 #f97316；8) 有无重叠/裁切问题。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "b772aebe74ce4e749437fc8a80561a23e1ca0f8bd8f2333165430efbcfa3b68c"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2160,
+      "height": 1620
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题：10 大编程语言流行度排行",
+        "visual_evidence": "截图顶部大号加粗文字“10 大编程语言流行度排行”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本，支持字体加粗和大小设置"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题：2026 年开发者生态调查 · 流行度得分（满分 100）",
+        "visual_evidence": "标题下方小号灰色文字“2026 年开发者生态调查 · 流行度得分（满分 100）”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本，支持颜色和字号调整"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "横向条形图主体",
+        "visual_evidence": "10 个橙色横向条形，左侧标注语言名，右侧标注数值，底部有 0-100 刻度轴",
+        "component_candidates": [
+          {
+            "name": "Column",
+            "confidence": 0.7,
+            "reason": "可作为容器布局条形图的每一行"
+          },
+          {
+            "name": "Row",
+            "confidence": 0.7,
+            "reason": "可横向排列语言名、条形、数值标签"
+          },
+          {
+            "name": "Rect",
+            "confidence": 0.85,
+            "reason": "用于绘制橙色条形，支持设置宽度和颜色"
+          },
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示语言名称和数值标签"
+          },
+          {
+            "name": "Divider",
+            "confidence": 0.6,
+            "reason": "可能用于绘制背景网格线"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "底部数据来源说明",
+        "visual_evidence": "截图左下角小号灰色文字“数据来源：虚构演示数据”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示底部注释文本，支持颜色和字号调整"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

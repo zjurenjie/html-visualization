@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "46899c22-7096-444b-833b-d115f4919457",
+    "createdAt": "2026-11-08T06:33:19.529Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/12-funnel/chart.png",
+      "sha256": "90a8ac617e63e183796ee55791c3f8aa9ed736b7f113edbcd450471dd3910660"
+    },
+    "requirements": {
+      "text": "这是 ECharts 漏斗图截图（warm 主题：暖白底 #fffaf5，五色盘 #f97316/#e11d48/#f59e0b/#be123c/#ea580c，9:16 竖屏比例 2160x3840）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「电商购买转化漏斗」与副标题「2026 年双十一大促 · 五阶段转化率」是否完整；4) 漏斗五层是否自上而下宽度递减、顺序为曝光 100% → 点击 42% → 加购 23% → 下单 12% → 支付 8%；5) 每层条内白字标签「阶段名 + 百分比」是否清晰可读、对比度是否足够（尤其最下层 8% 宽度窄文字是否溢出）；6) 竖屏下漏斗是否水平居中、上下留白均衡、不与标题脚注挤压；7) 五层颜色是否按 warm 色盘取色、层间边界清晰；8) 有无其他布局问题。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "da77831064b2e10ffc297c6a046fa0212798425dbb4b51f5eee242b1de3fdecb"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2160,
+      "height": 3840
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题：电商购买转化漏斗",
+        "visual_evidence": "截图顶部大号深色文字“电商购买转化漏斗”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本，支持字体、颜色、大小设置"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题：2026 年双十一大促 · 五阶段转化率",
+        "visual_evidence": "标题下方小号灰色文字“2026 年双十一大促 · 五阶段转化率”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本，支持不同样式以区分主次"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "漏斗图主体",
+        "visual_evidence": "由五个自上而下宽度递减的彩色梯形组成，每层内含白色文字标签",
+        "component_candidates": [
+          {
+            "name": "CustomComponent",
+            "confidence": 0.7,
+            "reason": "漏斗图非标准组件，需自定义绘制或使用 Canvas/CustomPaint 实现"
+          },
+          {
+            "name": "Stack",
+            "confidence": 0.6,
+            "reason": "可叠加多个 Shape 组件模拟漏斗层，但需手动计算布局"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "漏斗层：曝光 100%",
+        "visual_evidence": "最顶层橙色梯形，内含白色文字“曝光 100%”",
+        "component_candidates": [
+          {
+            "name": "Shape",
+            "confidence": 0.8,
+            "reason": "可使用 Polygon 或自定义 Path 绘制梯形，填充颜色并叠加 Text"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "漏斗层：点击 42%",
+        "visual_evidence": "第二层红色梯形，内含白色文字“点击 42%”",
+        "component_candidates": [
+          {
+            "name": "Shape",
+            "confidence": 0.8,
+            "reason": "同上，通过改变颜色和尺寸实现不同层级"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "漏斗层：加购 23%",
+        "visual_evidence": "第三层橙黄色梯形，内含白色文字“加购 23%”",
+        "component_candidates": [
+          {
+            "name": "Shape",
+            "confidence": 0.8,
+            "reason": "同上，支持不同填充色以区分阶段"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "漏斗层：下单 12%",
+        "visual_evidence": "第四层深红色梯形，内含白色文字“下单 12%”",
+        "component_candidates": [
+          {
+            "name": "Shape",
+            "confidence": 0.8,
+            "reason": "同上，尺寸递减符合漏斗结构"
+          }
+        ]
+      },
+      {
+        "id": "component-8",
+        "name": "漏斗层：支付 8%",
+        "visual_evidence": "最底层橙红色窄梯形，内含白色文字“支付 8%”",
+        "component_candidates": [
+          {
+            "name": "Shape",
+            "confidence": 0.8,
+            "reason": "最窄层仍清晰显示文字，需确保 Text 自适应或固定字号"
+          }
+        ]
+      },
+      {
+        "id": "component-9",
+        "name": "数据来源脚注",
+        "visual_evidence": "截图左下角小号灰色文字“数据来源：虚构演示数据”",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示底部注释，样式可与副标题一致"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

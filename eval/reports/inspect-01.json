@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "5af037a7-ea3e-4a49-aa4f-b7351c762e71",
+    "createdAt": "2026-11-08T06:15:02.150Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/01-line/chart.png",
+      "sha256": "7024496b807d9c5ca48c796428d6ceddd0334acb159c26c3dafacf01fbead816"
+    },
+    "requirements": {
+      "text": "这是 ECharts 折线图截图（主题 light：白底、强调色 #3b82f6）。请逐项检查并给出结论：1) 图表区是否空白（ECharts 是否加载成功）；2) 中文是否出现方块字/乱码；3) 标题「2026 年月度活跃用户趋势」与副标题「2026 年 1 月 - 12 月 · 单位：万人」是否完整显示、无裁切；4) 12 个月份轴标签与 12 个数值标签（486-786）是否完整、无重叠、无溢出；5) 折线与面积渐变是否正常渲染；6) 整体布局留白是否协调。请以 JSON 输出各项 pass/fail 及发现的问题。",
+      "sha256": "2717ee0542036f88fb5dab7415a6256526dc24fea9e5a75cd127c401ba2a60ea"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2400,
+      "height": 1350
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题：2026 年月度活跃用户趋势",
+        "visual_evidence": "截图顶部大号加粗黑色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本，支持字体加粗和字号控制"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题：2026 年 1 月 - 12 月 · 单位：万人",
+        "visual_evidence": "标题下方小号灰色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本，支持颜色和字号调整"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "折线图主体",
+        "visual_evidence": "包含坐标轴、数据点、折线、面积填充和数值标签的图表区域",
+        "component_candidates": [
+          {
+            "name": "Canvas",
+            "confidence": 0.85,
+            "reason": "适用于自定义绘制复杂图形如折线图、面积图"
+          },
+          {
+            "name": "Unknown",
+            "confidence": 0.7,
+            "reason": "截图显示为 ECharts 渲染的图表，ArkUI 无直接等价组件，可能需通过 WebView 或自定义绘制实现"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "X 轴标签：1月 至 12月",
+        "visual_evidence": "图表底部横向排列的月份标签",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示轴标签文本，支持水平排列和对齐"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "Y 轴刻度：400, 500, 600, 700, 800",
+        "visual_evidence": "图表左侧纵向排列的数值刻度",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示轴刻度文本，支持垂直排列和对齐"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "数据点数值标签：486 至 786",
+        "visual_evidence": "每个数据点上方显示的具体数值",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示动态数据标签，支持位置偏移和数值绑定"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "数据来源：虚构演示数据",
+        "visual_evidence": "截图左下角小号灰色文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.85,
+            "reason": "用于显示底部注释文本，支持颜色和字号控制"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

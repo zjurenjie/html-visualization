@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "0c09a614-12f0-47a5-814d-859601e8fd0c",
+    "createdAt": "2026-11-08T06:34:40.575Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/13-gauge/chart.png",
+      "sha256": "1933523315f526b1f123e2b57540d318dc5881d073b6be97f7db4eb6ef641439"
+    },
+    "requirements": {
+      "text": "这是 ECharts 仪表盘截图（business 主题：米白底 #fffdf8、进度弧深蓝 #1d4ed8，1:1 比例 2160x2160）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「年度 KPI 完成率」与副标题「2026 年 · 目标 5.0 亿元，实际 3.7 亿元」是否完整；4) 仪表盘进度弧（74%）是否约为 3/4 圆弧、颜色深蓝、与背景弧区分明显；5) 中心数值「74%」是否大号醒目、「营收 KPI 完成率」标题是否在数值下方且不重叠；6) 刻度（0/25/50/75/100）是否清晰、不拥挤；7) 仪表盘是否居中、半径占比协调；8) 有无指针残留（本设计 pointer 隐藏）、有无溢出/裁切。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "ce016f3f2e7fb331b0f530b20040f75f5b15ae5a5a738257d9924ee460fbb6e2"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2160,
+      "height": 2160
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "年度 KPI 完成率",
+        "visual_evidence": "左上角主标题文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "2026 年 · 目标 5.0 亿元，实际 3.7 亿元",
+        "visual_evidence": "主标题下方副标题文字",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "仪表盘进度弧",
+        "visual_evidence": "深蓝色弧形进度条，覆盖约 3/4 圆周",
+        "component_candidates": [
+          {
+            "name": "Arc",
+            "confidence": 0.85,
+            "reason": "可绘制圆弧进度，支持颜色与角度控制"
+          },
+          {
+            "name": "Progress",
+            "confidence": 0.75,
+            "reason": "支持环形进度，但需确认是否支持半圆弧样式"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "中心数值 74%",
+        "visual_evidence": "仪表盘中心大号数字百分比",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示核心数值，可设置大字号"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "营收 KPI 完成率",
+        "visual_evidence": "中心数值下方小字说明",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示数值下方的补充说明"
+          }
+        ]
+      },
+      {
+        "id": "component-6",
+        "name": "刻度 0/25/50/75/100",
+        "visual_evidence": "沿弧线分布的刻度数字与短线",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.8,
+            "reason": "用于显示刻度标签"
+          },
+          {
+            "name": "Line",
+            "confidence": 0.7,
+            "reason": "用于绘制刻度短线"
+          }
+        ]
+      },
+      {
+        "id": "component-7",
+        "name": "数据来源：虚构演示数据",
+        "visual_evidence": "左下角小字注释",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示底部注释文本"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

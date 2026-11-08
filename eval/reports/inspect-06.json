@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 2,
+  "status": "ok",
+  "producer": {
+    "tool": "recognize_ui_components",
+    "model": "Qwen3_VL_235B_A22B_Instruct",
+    "invocationId": "ba43cd10-0bd9-4fcb-9be8-0e8b31ef01a6",
+    "createdAt": "2026-11-08T06:22:33.898Z"
+  },
+  "inputs": {
+    "image": {
+      "path": "eval/cases/06-pie/chart.png",
+      "sha256": "3c8994f30db670a99a8b0ac19ed34f45663fabfc84fcb2645ec5631b469501b6"
+    },
+    "requirements": {
+      "text": "这是 ECharts 饼图截图（warm 主题：暖白底 #fffaf5，五色盘 #f97316/#e11d48/#f59e0b/#be123c/#ea580c，1:1 比例 2160x2160）。请逐项检查：1) 图表区是否空白；2) 中文是否有方块字/乱码；3) 标题「五类健身课程受欢迎度占比」与副标题「2026 年 10 月 · 按上课人次」是否完整；4) 饼图五个扇区是否都可见（燃脂操 30.0%/瑜伽 25.4%/动感单车 20.8%/普拉提 16.2%/搏击操 11.5%）；5) 外部标签（课程名+百分比两行）是否完整、引导线是否清晰、标签之间有无重叠；6) 扇区是否以背景色描边分隔、带圆角；7) 中心无总计文字（饼图语义）；8) 有无标签溢出画布边缘。JSON 输出各项 pass/fail 与问题。",
+      "sha256": "204a1118493df2c9d8ebf53cc7246eaa0b7f2aa6b862a583183aed18f96eba37"
+    }
+  },
+  "analysis": {
+    "canvas": {
+      "width": 2160,
+      "height": 2160
+    },
+    "visible_components": [
+      {
+        "id": "component-1",
+        "name": "标题文本",
+        "visual_evidence": "顶部显示「五类健身课程受欢迎度占比」",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.95,
+            "reason": "用于显示静态标题文本"
+          }
+        ]
+      },
+      {
+        "id": "component-2",
+        "name": "副标题文本",
+        "visual_evidence": "标题下方显示「2026 年 10 月 · 按上课人次」",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示辅助说明文本"
+          }
+        ]
+      },
+      {
+        "id": "component-3",
+        "name": "饼图主体",
+        "visual_evidence": "中心圆形图表，由五个不同颜色扇区组成",
+        "component_candidates": [
+          {
+            "name": "PieChart",
+            "confidence": 0.85,
+            "reason": "标准饼图组件，支持扇区划分与颜色配置"
+          },
+          {
+            "name": "Canvas",
+            "confidence": 0.7,
+            "reason": "若无现成图表组件，可用 Canvas 自定义绘制"
+          }
+        ]
+      },
+      {
+        "id": "component-4",
+        "name": "扇区标签与引导线",
+        "visual_evidence": "每个扇区外侧有课程名与百分比两行文字，通过细线连接扇区",
+        "component_candidates": [
+          {
+            "name": "Text + Line",
+            "confidence": 0.8,
+            "reason": "标签用 Text，引导线用 Line 组合实现"
+          },
+          {
+            "name": "PieChartLabel",
+            "confidence": 0.75,
+            "reason": "若图表组件支持外部标签，可直接使用内置标签功能"
+          }
+        ]
+      },
+      {
+        "id": "component-5",
+        "name": "数据来源文本",
+        "visual_evidence": "左下角显示「数据来源：虚构演示数据」",
+        "component_candidates": [
+          {
+            "name": "Text",
+            "confidence": 0.9,
+            "reason": "用于显示底部注释文本"
+          }
+        ]
+      }
+    ],
+    "global_observations": [],
+    "uncertainties": []
+  }
+}

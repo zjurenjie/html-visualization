@@ -176,6 +176,40 @@ python scripts/build-examples.py --only line-trend,gallery-overview
 
 切换方式：修改 `body` 标签的 `data-theme` 属性即可，无需改任何颜色代码。
 
+## 评测集
+
+[`eval/`](eval/) 目录是一套端到端评测集（chart-eval-suite）：**14 种图型各 1 个基准业务场景**，用于检验「数据 → HTML → PNG」工作流的渲染质量。
+
+- [`eval/dataset.md`](eval/dataset.md) — 评测集唯一输入源：每例含场景说明、图型、主题、比例、完整数据与评分要点
+- [`eval/cases/<id>-<type>/`](eval/cases/) — 每例产出 `chart.html`（可渲染源文件）+ `chart.png`（渲染结果），共 14 组
+- [`eval/reports/`](eval/reports/) — 评测结果：`inspect-01.json` ~ `inspect-14.json`，多模态模型（Qwen3-VL）对每例 `chart.png` 的视觉检查报告（空白/乱码/裁切/重叠等逐项核验）
+- [`eval/check_png.py`](eval/check_png.py) — PNG 硬指标检查脚本：空白检测、背景色匹配、灰度极差与颜色数统计，先于模型检查做自动化初筛
+- [`eval/scores.md`](eval/scores.md) — 评分口径：硬指标核验（H1-H3）→ 按 focus_points 视觉核验 → 评分与 A-D 等级
+- [`eval/review.md`](eval/review.md) — 用户复评闭环：复评流程、14 例状态表、目检清单与轮次记录
+
+### 14 用例总览
+
+| ID | 目录 | 图型 | 场景 | 主题 | 比例 |
+|----|------|------|------|------|------|
+| 01 | `cases/01-line` | 折线图 | 2026 年月度活跃用户趋势 | light | 16:9 |
+| 02 | `cases/02-stacked-line` | 堆叠折线图 | 四大渠道月度访问量累计 | business | 16:9 |
+| 03 | `cases/03-bar` | 柱状图 | 六大区季度销售额对比 | light | 16:9 |
+| 04 | `cases/04-horizontal-bar` | 横向条形图 | 10 大编程语言流行度排行 | warm | 4:3 |
+| 05 | `cases/05-stacked-bar` | 堆叠柱状图 | 三渠道季度销售额构成 | business | 16:9 |
+| 06 | `cases/06-pie` | 饼图 | 五类健身课程受欢迎度占比 | warm | 1:1 |
+| 07 | `cases/07-donut` | 环形图 | 四端流量构成（中心总计） | light | 1:1 |
+| 08 | `cases/08-scatter` | 散点图 | 30 款车型马力 vs 百公里加速 | dark | 16:9 |
+| 09 | `cases/09-distribution-scatter` | 分布散点图 | 食品营养成分分布（4 类 ×150 点） | dark | 16:9 |
+| 10 | `cases/10-linear-regression` | 线性回归图 | 广告投入 vs 销售额（标注公式与 R²） | light | 16:9 |
+| 11 | `cases/11-radar` | 雷达图 | 两款产品六维能力对比 | dark | 1:1 |
+| 12 | `cases/12-funnel` | 漏斗图 | 电商购买转化漏斗五阶段 | warm | 9:16 |
+| 13 | `cases/13-gauge` | 仪表盘 | 年度 KPI 完成率 | business | 1:1 |
+| 14 | `cases/14-gantt` | 甘特图 | 产品 v2.0 发布排期（4 车道） | light | 16:9 |
+
+覆盖统计：主题 light×5 / business×3 / dark×3 / warm×3（4 套主题各 ≥2）；比例 16:9×8 / 4:3×1 / 1:1×4 / 9:16×1。
+
+> **数据声明**：全部场景数据均为虚构演示数据（已在各例标注），仅用于检验渲染质量与工作流，不代表任何真实统计。每例的完整数据、参数与评分要点（focus_points）见 [`eval/dataset.md`](eval/dataset.md)。
+
 ## 项目结构
 
 ```
@@ -192,6 +226,14 @@ html-visualization/
 │   ├── line-trend.html             # 16:9 折线图
 │   ├── vertical-dark.html          # 9:16 竖屏 + dark 主题
 │   └── gantt-schedule.html         # 16:9 甘特图
+├── eval/                           # 评测集（chart-eval-suite，见 eval/dataset.md）
+│   ├── dataset.md                  # 14 用例唯一输入源：场景、数据、参数与评分要点
+│   ├── scores.md                   # 评分口径：硬指标核验 + 视觉核验 + 等级
+│   ├── review.md                   # 用户复评闭环：状态表、检查清单、轮次记录
+│   ├── check_png.py                # PNG 硬指标检查脚本（空白/背景色/尺寸初筛）
+│   ├── reports/                    # 评测结果：14 份模型视觉检查报告 inspect-*.json
+│   └── cases/                      # 14 组产出：cases/01-line ... cases/14-gantt
+│       └── <id>-<type>/            # 每例 chart.html + chart.png
 ├── references/
 │   └── chart-design.md             # 图型判定表、主题令牌、ECharts 配方、设计规范
 ├── scripts/
